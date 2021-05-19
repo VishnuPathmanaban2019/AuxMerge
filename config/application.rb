@@ -1,6 +1,7 @@
 require_relative "boot"
-
 require "rails/all"
+require "rspotify"
+RSpotify::authenticate("2ae492828b34413f8e96d2eaacb8a085", "b02d1ce8c1af4f0ca7fa5be622adac21")
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
