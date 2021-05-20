@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   # home routes
   get 'home', to: 'home#index', as: :home
 
-  get '/auth/spotify/callback', to: 'home#spotify'
+  get '/auth/spotify/callback', to: 'users#spotify'
 
   # root @ home
   root 'home#index'
