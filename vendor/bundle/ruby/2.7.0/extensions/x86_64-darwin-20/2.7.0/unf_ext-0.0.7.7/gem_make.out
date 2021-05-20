@@ -1,0 +1,16 @@
+current directory: /Users/rchandra/Desktop/SpotifyApp/vendor/bundle/ruby/2.7.0/gems/unf_ext-0.0.7.7/ext/unf_ext
+/Users/rchandra/.rvm/rubies/ruby-2.7.2/bin/ruby -I /Users/rchandra/.rvm/rubies/ruby-2.7.2/lib/ruby/2.7.0 -r ./siteconf20210520-33982-br23y9.rb extconf.rb
+checking for -lstdc++... yes
+creating Makefile
+
+current directory: /Users/rchandra/Desktop/SpotifyApp/vendor/bundle/ruby/2.7.0/gems/unf_ext-0.0.7.7/ext/unf_ext
+make "DESTDIR=" clean
+
+current directory: /Users/rchandra/Desktop/SpotifyApp/vendor/bundle/ruby/2.7.0/gems/unf_ext-0.0.7.7/ext/unf_ext
+make "DESTDIR="
+compiling unf.cc
+linking shared-object unf_ext.bundle
+
+current directory: /Users/rchandra/Desktop/SpotifyApp/vendor/bundle/ruby/2.7.0/gems/unf_ext-0.0.7.7/ext/unf_ext
+make "DESTDIR=" install
+/usr/local/opt/coreutils/bin/ginstall -c -m 0755 unf_ext.bundle ./.gem.20210520-33982-1yu326a
