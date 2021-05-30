@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_19_224703) do
+ActiveRecord::Schema.define(version: 2021_05_30_231210) do
 
   create_table "artist_room_relations", force: :cascade do |t|
     t.integer "artist_id", null: false
@@ -96,6 +96,7 @@ ActiveRecord::Schema.define(version: 2021_05_19_224703) do
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "user_hash"
   end
 
   add_foreign_key "artist_room_relations", "artists"

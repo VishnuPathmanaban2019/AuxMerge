@@ -1,5 +1,9 @@
 class User < ApplicationRecord
-    has_many :user_room_relations
+    serialize :user_hash, Hash
+
     has_many :playlists
+
+    has_many :user_room_relations
+    has_many :rooms, through: :user_room_relations
 end
   

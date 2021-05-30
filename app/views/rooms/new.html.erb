@@ -1,0 +1,13 @@
+<%= simple_form_for(@room) do |f| %>
+  <%= f.error_notification %>
+  <div class="row">
+    <div class="form-inputs">
+      <%= f.input :password, label_html: { class: 'active' } %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-actions col s8">
+      <%= f.button :submit, class: "btn green darken-2" %>
+    </div>
+  </div>
+<% end %>
