@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   resources :users
   resources :rooms
 
+  post 'user_room_relations', to: 'user_room_relations#create', as: :user_room_relations
+  get 'user_room_relations/new', to: 'user_room_relations#new', as: :new_user_room_relation
+
   # root @ home
   root 'home#index'
 end

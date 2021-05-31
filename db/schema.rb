@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_30_231210) do
+ActiveRecord::Schema.define(version: 2021_05_31_021459) do
 
   create_table "artist_room_relations", force: :cascade do |t|
     t.integer "artist_id", null: false
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 2021_05_30_231210) do
     t.string "password"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "creator_int"
   end
 
   create_table "selected_playlists", force: :cascade do |t|

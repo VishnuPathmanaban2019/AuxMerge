@@ -1,1 +1,6 @@
+<br />
 <%= @display_name %>
+<br />
+<%= link_to "Create a Room", new_room_path(creator_int: @user.id) %>
+<br />
+<%= link_to "Join a Room", new_user_room_relation_path(user_id: @user.id) %>
