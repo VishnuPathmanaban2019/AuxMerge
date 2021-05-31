@@ -1,5 +1,6 @@
 class TrackRoomRelation < ApplicationRecord
+  serialize :listeners, Array
+
   belongs_to :track
   belongs_to :room
-  belongs_to :user
 end

@@ -15,18 +15,18 @@ class RoomsController < ApplicationController
                 playlist.tracks.each do |track|
                     if Track.where(identifier: track.id).empty?
                         db_track = Track.create(:identifier => track.id,:name => track.name)
-                        TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :user_id => urr.user_id, :score => 1)
+                        TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
                     else 
                         db_track = Track.where(identifier: track.id).first
-                        if !(TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id, :user_id => urr.user_id).empty?)
-                            # if track exists in room but same user (do nothing)
-                        elsif !(TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id).empty?)
+                        if !(TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id).empty?)
                             trr = TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id).first
-                            trr.update_attribute(:score, trr.score + 1)
-                            trr.update_attribute(:user_id, urr.user_id)
-                            trr.reload
+                            if !(trr.listeners.include? urr.user_id)
+                                trr.update_attribute(:score, trr.score + 1)
+                                trr.update_attribute(:listeners, trr.listeners.append(urr.user_id))
+                                trr.reload
+                            end
                         else 
-                            TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :user_id => urr.user_id, :score => 1)
+                            TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
                         end
                     end
                 end

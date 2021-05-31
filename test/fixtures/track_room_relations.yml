@@ -3,11 +3,11 @@
 one:
   track: one
   room: one
+  listeners: MyText
   score: 1
-  user: one
 
 two:
   track: two
   room: two
+  listeners: MyText
   score: 1
-  user: two
