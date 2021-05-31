@@ -19,6 +19,6 @@
   <b>Name:</b> <%= trr.track.name %>, <b>Score:</b> <%= trr.score %><br />
 <% end %>
 <br />
-<%= link_to 'Generate Playlist', result_path %>
+<%= link_to 'Generate Playlist', result_path(result: @recommended_ids, creator_id: @room.creator_id) %>
 </center>
 

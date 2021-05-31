@@ -34,6 +34,20 @@ class RoomsController < ApplicationController
         end
         @room.reload
         @track_room_relations = @room.track_room_relations
+        @common_ttr = @track_room_relations.select { |trr| trr.score > 1 } 
+        @common_tracks = []
+        @common_ttr.each do |ttr|
+            if (@common_tracks.length < 5)
+                @common_tracks.append(ttr.track.identifier)
+            end
+        end
+        if !(@common_tracks.empty?)
+            @recommended_tracks = RSpotify::Recommendations.generate(seed_tracks: @common_tracks).tracks
+            @recommended_ids = []
+            @recommended_tracks.each do |track|
+                @recommended_ids.append(track.id)
+            end
+        end
     end
 
     def create
