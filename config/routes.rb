@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   
   # home routes
   get 'home', to: 'home#index', as: :home
+  get 'home/result', to: 'home#result', as: :result
 
   # authorization route
   get '/auth/spotify/callback', to: 'users#spotify'

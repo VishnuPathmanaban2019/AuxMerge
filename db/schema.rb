@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_31_171017) do
+ActiveRecord::Schema.define(version: 2021_05_31_181853) do
 
   create_table "rooms", force: :cascade do |t|
     t.string "password"
@@ -18,6 +18,25 @@ ActiveRecord::Schema.define(version: 2021_05_31_171017) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "creator_playlists"
+  end
+
+  create_table "track_room_relations", force: :cascade do |t|
+    t.integer "track_id", null: false
+    t.integer "room_id", null: false
+    t.integer "score"
+    t.integer "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["room_id"], name: "index_track_room_relations_on_room_id"
+    t.index ["track_id"], name: "index_track_room_relations_on_track_id"
+    t.index ["user_id"], name: "index_track_room_relations_on_user_id"
+  end
+
+  create_table "tracks", force: :cascade do |t|
+    t.string "identifier"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "user_room_relations", force: :cascade do |t|
@@ -36,6 +55,9 @@ ActiveRecord::Schema.define(version: 2021_05_31_171017) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "track_room_relations", "rooms"
+  add_foreign_key "track_room_relations", "tracks"
+  add_foreign_key "track_room_relations", "users"
   add_foreign_key "user_room_relations", "rooms"
   add_foreign_key "user_room_relations", "users"
 end
