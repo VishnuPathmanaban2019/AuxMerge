@@ -4,13 +4,11 @@ Rails.application.routes.draw do
   # home routes
   get 'home', to: 'home#index', as: :home
 
-  # user routes
+  # authorization route
   get '/auth/spotify/callback', to: 'users#spotify'
-  get 'users/:id', to: 'user#show'
 
-  # room routes
-  post 'rooms/new', to: 'rooms#new'
-  get 'rooms/:id', to: 'rooms#show'
+  resources :users
+  resources :rooms
 
   # root @ home
   root 'home#index'
