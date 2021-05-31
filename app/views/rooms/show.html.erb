@@ -1,7 +1,18 @@
+<center>
 <br />
 <h1>Room ID: <%= @room.id %></h1>
 <h2>Users in this Room:</h2>
 <% @users.each do |user| %>
   <%= RSpotify::User.new(user.user_hash).display_name %><br />
 <% end %>
+<br />
+<h2>Selected Playlists:</h2>
+<% @user_room_relations.each do |urr| %>
+  <h3><%= RSpotify::User.new(User.find(urr.user_id).user_hash).display_name %>:</h3><br />
+  <% urr.selected_playlists.drop(1).each do |playlist| %>
+    <%= RSpotify::Playlist.find_by_id(playlist).name %><br />
+  <% end %>
+  <br />
+<% end %>
+</center>
 

@@ -8,6 +8,7 @@ class RoomsController < ApplicationController
 
     def show 
         @users = @room.users
+        @user_room_relations = @room.user_room_relations
     end
 
     def create
@@ -16,7 +17,7 @@ class RoomsController < ApplicationController
         if @room.save
             
             @creator = User.find(@room.creator_id)
-            UserRoomRelation.create(:user_id => @creator.id,:room_id => @room.id)
+            UserRoomRelation.create(:user_id => @creator.id,:room_id => @room.id, :selected_playlists => @room.creator_playlists)
 
             redirect_to room_path(@room)
         else
@@ -31,6 +32,6 @@ class RoomsController < ApplicationController
     end
 
     def room_params
-        params.require(:room).permit(:password, :creator_id)
+        params.require(:room).permit(:password, :creator_id, creator_playlists:[])
     end
 end

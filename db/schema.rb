@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_31_033305) do
+ActiveRecord::Schema.define(version: 2021_05_31_171017) do
 
   create_table "rooms", force: :cascade do |t|
     t.string "password"
     t.integer "creator_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "creator_playlists"
   end
 
   create_table "user_room_relations", force: :cascade do |t|
@@ -24,6 +25,7 @@ ActiveRecord::Schema.define(version: 2021_05_31_033305) do
     t.integer "room_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "selected_playlists"
     t.index ["room_id"], name: "index_user_room_relations_on_room_id"
     t.index ["user_id"], name: "index_user_room_relations_on_user_id"
   end

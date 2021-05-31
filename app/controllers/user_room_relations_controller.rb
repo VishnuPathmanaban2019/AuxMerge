@@ -17,6 +17,6 @@ class UserRoomRelationsController < ApplicationController
 
     private
     def user_room_relation_params
-        params.require(:user_room_relation).permit(:user_id, :room_id)
+        params.require(:user_room_relation).permit(:user_id, :room_id, selected_playlists:[])
     end
 end
