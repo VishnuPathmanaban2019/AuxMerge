@@ -6,13 +6,12 @@ class UserRoomRelationsController < ApplicationController
 
     def create
         @user_room_relation = UserRoomRelation.new(user_room_relation_params)
+
         if @user_room_relation.save
-        # if saved to database
-        flash[:notice] = "Successfully joined room."
-        redirect_to room_path(@user_room_relation.room) # go to show page
+            redirect_to room_path(@user_room_relation.room)
         else
-        # return to the 'new' form
-        render action: 'new'
+            # return to the 'new' form
+            render action: 'new'
         end
     end
 

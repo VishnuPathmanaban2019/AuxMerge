@@ -1,6 +1,6 @@
 <br />
-<%= @display_name %>
+<h3>Hello, <%= @display_name %>.</h3>
 <br />
-<%= link_to "Create a Room", new_room_path(creator_int: @user.id) %>
+<%= link_to "Create a Room", new_room_path(creator_id: @user.id) %>
 <br />
 <%= link_to "Join a Room", new_user_room_relation_path(user_id: @user.id) %>

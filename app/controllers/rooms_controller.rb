@@ -3,7 +3,7 @@ class RoomsController < ApplicationController
 
     def new 
         @room = Room.new
-        @room.creator_int = params[:creator_int] if params[:creator_int]
+        @room.creator_id = params[:creator_id] if params[:creator_id]
     end    
 
     def show 
@@ -12,15 +12,16 @@ class RoomsController < ApplicationController
 
     def create
         @room = Room.new(room_params)
+
         if @room.save
-        # if saved to database
-        flash[:notice] = "Successfully created room."
-        @creator = User.find(@room.creator_int)
-        UserRoomRelation.create(:user_id => @creator.id,:room_id => @room.id)
-        redirect_to room_path(@room) # go to show page
+            
+            @creator = User.find(@room.creator_id)
+            UserRoomRelation.create(:user_id => @creator.id,:room_id => @room.id)
+
+            redirect_to room_path(@room)
         else
-        # return to the 'new' form
-        render action: 'new'
+            # return to the 'new' form
+            render action: 'new'
         end
     end
 
@@ -30,6 +31,6 @@ class RoomsController < ApplicationController
     end
 
     def room_params
-        params.require(:room).permit(:password, :creator_int)
+        params.require(:room).permit(:password, :creator_id)
     end
 end
