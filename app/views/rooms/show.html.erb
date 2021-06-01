@@ -14,11 +14,7 @@
   <% end %>
   <br />
 <% end %>
-<h2>Track Scoring:</h2>
-<% @track_room_relations.each do |trr| %>
-  <b>Name:</b> <%= trr.track.name %>, <b>Score:</b> <%= trr.score %><br />
-<% end %>
 <br />
-<%= link_to 'Generate Playlist', result_path(result: @recommended_ids, creator_id: @room.creator_id) %>
+<%= link_to 'Generate Playlist', room_playlist_path(@room.id) %>
 </center>
 

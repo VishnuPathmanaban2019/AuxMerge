@@ -1,0 +1,9 @@
+<h1>Your playlist has been downloaded:</h1>
+<% @recommended_tracks.each do |track| %>
+  <%= track.name %><br />
+<% end %>
+<br />
+<h2>Track Scoring:</h2>
+<% @track_room_relations.each do |trr| %>
+  <b>Name:</b> <%= trr.track.name %>, <b>Score:</b> <%= trr.score %><br />
+<% end %>

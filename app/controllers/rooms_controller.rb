@@ -9,6 +9,12 @@ class RoomsController < ApplicationController
     def show 
         @users = @room.users
         @user_room_relations = @room.user_room_relations
+    end
+
+    def playlist
+        @room = Room.find(params[:id])
+        @user_room_relations = @room.user_room_relations 
+
         @user_room_relations.each do |urr|
             urr.selected_playlists.drop(1).each do |playlist_id|
                 playlist = RSpotify::Playlist.find_by_id(playlist_id)
@@ -23,7 +29,6 @@ class RoomsController < ApplicationController
                             if !(trr.listeners.include? urr.user_id)
                                 trr.update_attribute(:score, trr.score + 1)
                                 trr.update_attribute(:listeners, trr.listeners.append(urr.user_id))
-                                trr.reload
                             end
                         else 
                             TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
@@ -32,7 +37,7 @@ class RoomsController < ApplicationController
                 end
             end
         end
-        @room.reload
+
         @track_room_relations = @room.track_room_relations
         @common_ttr = @track_room_relations.select { |trr| trr.score > 1 } 
         @common_tracks = []
@@ -41,12 +46,12 @@ class RoomsController < ApplicationController
                 @common_tracks.append(ttr.track.identifier)
             end
         end
+        
+        @recommended_tracks = []
         if !(@common_tracks.empty?)
             @recommended_tracks = RSpotify::Recommendations.generate(seed_tracks: @common_tracks).tracks
-            @recommended_ids = []
-            @recommended_tracks.each do |track|
-                @recommended_ids.append(track.id)
-            end
+            playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!('Group Playlist')
+            playlist.add_tracks!(@recommended_tracks)
         end
     end
 

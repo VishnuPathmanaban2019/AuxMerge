@@ -3,13 +3,13 @@ Rails.application.routes.draw do
   
   # home routes
   get 'home', to: 'home#index', as: :home
-  get 'home/result', to: 'home#result', as: :result
 
   # authorization route
   get '/auth/spotify/callback', to: 'users#spotify'
 
   resources :users
   resources :rooms
+  get 'rooms/:id/playlist', to: 'rooms#playlist', as: :room_playlist
 
   post 'user_room_relations', to: 'user_room_relations#create', as: :user_room_relations
   get 'user_room_relations/new', to: 'user_room_relations#new', as: :new_user_room_relation

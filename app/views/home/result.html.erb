@@ -1,4 +1,0 @@
-<h1>Your playlist has been downloaded:</h1>
-<% params[:result].each do |track_id| %>
-  <%= RSpotify::Track.find(track_id).name %><br />
-<% end %>
