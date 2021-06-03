@@ -1,9 +1,22 @@
-<h1>Your playlist has been downloaded:</h1>
-<% @recommended_tracks.each do |track| %>
-  <%= track.name %><br />
+<br />
+<h1>Algo Data:</h1>
+<br />
+<h2>Final Playlist:</h2>
+<% @playlist_songs.each do |track| %>
+  <%= track %><br />
 <% end %>
 <br />
-<h2>Track Scoring:</h2>
-<% @track_room_relations.each do |trr| %>
-  <b>Name:</b> <%= trr.track.name %>, <b>Score:</b> <%= trr.score %><br />
+<h2>Common Tracks:</h2>
+<% @common_tracks.each do |track| %>
+  <%= track %><br />
+<% end %>
+<br />
+<h2>Random Songs by Top Artists:</h2>
+<% @top_artists_selection.each do |track| %>
+  <%= track %><br />
+<% end %>
+<br />
+<h2>Artist Scores:</h2>
+<% @final_artist_scores.each do |artist, score| %>
+  <b><%= artist %>:</b> <%= score %><br />
 <% end %>
