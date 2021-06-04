@@ -16,6 +16,7 @@ class RoomsController < ApplicationController
         @users = @room.users
         @user_room_relations = @room.user_room_relations 
 
+        # TRR creation loop
         @user_room_relations.each do |urr|
             urr.artist_scores = Hash.new(0)
             urr.selected_playlists.drop(1).each do |playlist_id|
@@ -25,7 +26,7 @@ class RoomsController < ApplicationController
                     # artist score updates
                     artists = track.artists.map { |artist| artist.name }
                     artists.each do |artist|
-                        # potential issue with not using update_attribute
+                        # potential speed loss with not using update_attribute
                         urr.artist_scores[artist] = urr.artist_scores.fetch(artist, 0) + 1
                     end
 
@@ -49,6 +50,7 @@ class RoomsController < ApplicationController
             end
         end
 
+        # find common tracks
         @track_room_relations = @room.track_room_relations
         @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length } 
         @common_tracks = []
@@ -56,6 +58,7 @@ class RoomsController < ApplicationController
             @common_tracks.append(trr.track.identifier)
         end
 
+        # find user with least artists to loop through in next step
         min_length = @user_room_relations.first.artist_scores.length
         min_urr = @user_room_relations.first
         @user_room_relations.each do |urr|
@@ -66,7 +69,7 @@ class RoomsController < ApplicationController
             end
         end
 
-        # will optimize later
+        # calculate artist scores for the room with min method
         @final_artist_scores = Hash.new(0)
         min_urr.artist_scores.each do |artist,score|
             room_artist_scores = []
@@ -77,23 +80,56 @@ class RoomsController < ApplicationController
         end
         @final_artist_scores = @final_artist_scores.sort_by {|artist, score| -score}
 
-        @top_artists = @final_artist_scores.map { |artist,score| artist }[0..4]
-        top_artists_songs = []
+        # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
+        @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }[0..9]
+        @top_artists_songs = []
         @top_artists.each do |artist|
             @track_room_relations.each do |trr|
-                if (trr.track.authors.include? artist) and (!(@common_tracks.include? trr.track.identifier)) and (!(top_artists_songs.include? trr.track.identifier))
+                if (trr.track.authors.include? artist) and (!(@common_tracks.include? trr.track.identifier)) and (!(@top_artists_songs.include? trr.track.identifier))
                     trr.listeners.length.times do |i|
-                        top_artists_songs.append(trr.track.identifier)
+                        @top_artists_songs.append(trr.track.identifier)
                     end
                 end
             end
         end
-        @top_artists_selection = top_artists_songs.sample(50)
+        @top_artists_selection = @top_artists_songs.sample(50)
 
+        # search for possible collabs to add
+        @unique_artists = []
+        @user_room_relations.each do |urr|
+            @user_unique_artists = []
+            user_artists = urr.artist_scores.sort_by {|artist, score| -score}.map { |artist,score| artist }
+            user_artists.each do |artist|
+                if !(@top_artists.include? artist)
+                    @user_unique_artists.append(artist)
+                end
+                if @user_unique_artists.length >= 5
+                    break
+                end 
+            end
+            @unique_artists.append(@user_unique_artists)
+        end
+        head, *rest = @unique_artists 
+        @collab_combos = head.product(*rest)
+        @collab_combos = @collab_combos
+        
+        @collabs_found = []
+        # @collab_strings = []
+        @collab_combos.each do |combo|
+            collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
+            if !(collab_tracks.empty?) and (collab_tracks.first.artists.map { |artist| artist.name }.include? combo.first)
+                @collabs_found.append(collab_tracks.first.id)
+                # @collab_strings.append(combo.join(', '))
+            end 
+        end
+        # @collabs_found = @collabs_found.uniq
+            
+        # make final playlist
         @playlist_songs = []
         @playlist_songs.append(@common_tracks)
         @playlist_songs.append(@top_artists_selection)
-        @playlist_songs = @playlist_songs.flatten.shuffle.map { |id| RSpotify::Track.find(id) }
+        @playlist_songs.append(@collabs_found)
+        @playlist_songs = @playlist_songs.flatten.shuffle.map { |id| RSpotify::Track.find(id) }.uniq
 
         desc = RSpotify::User.new(@users.first.user_hash).display_name
         @users[1..@users.length].each do |user|

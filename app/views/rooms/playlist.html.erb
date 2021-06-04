@@ -1,22 +1,7 @@
 <br />
-<h1>Algo Data:</h1>
+<h1>Your playlist has been downloaded!</h1>
 <br />
 <h2>Final Playlist:</h2>
 <% @playlist_songs.each do |track| %>
-  <%= track %><br />
-<% end %>
-<br />
-<h2>Common Tracks:</h2>
-<% @common_tracks.each do |track| %>
-  <%= track %><br />
-<% end %>
-<br />
-<h2>Random Songs by Top Artists:</h2>
-<% @top_artists_selection.each do |track| %>
-  <%= track %><br />
-<% end %>
-<br />
-<h2>Artist Scores:</h2>
-<% @final_artist_scores.each do |artist, score| %>
-  <b><%= artist %>:</b> <%= score %><br />
+  <%= track.name %><br />
 <% end %>
