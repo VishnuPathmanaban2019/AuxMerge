@@ -103,7 +103,7 @@ class RoomsController < ApplicationController
                 if !(@top_artists.include? artist)
                     @user_unique_artists.append(artist)
                 end
-                if @user_unique_artists.length >= 5
+                if @user_unique_artists.length >= 3
                     break
                 end 
             end
@@ -136,8 +136,8 @@ class RoomsController < ApplicationController
             desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
         end
 
-        playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
-        playlist.add_tracks!(@playlist_songs)
+        # playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
+        # playlist.add_tracks!(@playlist_songs)
 
         # @recommended_tracks = []
         # if !(@common_tracks.empty?)
