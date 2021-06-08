@@ -93,6 +93,13 @@ class RoomsController < ApplicationController
             end
         end
         @top_artists_selection = @top_artists_songs.sample(50)
+            
+        # make final playlist
+        @playlist_songs = []
+        @playlist_songs.append(@common_tracks)
+        @playlist_songs.append(@top_artists_selection)
+
+        @playlist_songs = @playlist_songs.flatten.map { |id| RSpotify::Track.find(id) }
 
         # search for possible collabs to add
         @unique_artists = []
@@ -114,22 +121,39 @@ class RoomsController < ApplicationController
         @collab_combos = @collab_combos
         
         @collabs_found = []
-        # @collab_strings = []
-        @collab_combos.each do |combo|
-            collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
-            if !(collab_tracks.empty?) and (collab_tracks.first.artists.map { |artist| artist.name }.include? combo.first)
-                @collabs_found.append(collab_tracks.first.id)
-                # @collab_strings.append(combo.join(', '))
-            end 
+        if @users.length <= 3
+            @collab_combos.each do |combo|
+                collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
+                if !(collab_tracks.empty?)
+                    includes_all_artists = true 
+                    combo.each do |artist|
+                        if !(collab_tracks.first.artists.map { |artist| artist.name }.include? artist)
+                            includes_all_artists = false
+                        end 
+                    end
+                    if includes_all_artists
+                        @collabs_found.append(collab_tracks.first)
+                    end
+                end 
+            end
+            # @collabs_found = @collabs_found.uniq
         end
-        # @collabs_found = @collabs_found.uniq
-            
-        # make final playlist
-        @playlist_songs = []
-        @playlist_songs.append(@common_tracks)
-        @playlist_songs.append(@top_artists_selection)
-        @playlist_songs.append(@collabs_found)
-        @playlist_songs = @playlist_songs.flatten.shuffle.map { |id| RSpotify::Track.find(id) }.uniq
+        @playlist_songs = @playlist_songs.append(@collabs_found).flatten.uniq
+
+        # fill up playlist
+        if @playlist_songs.length < 100
+            remainder = 100 - @playlist_songs.length
+            artist_names = @top_artists[0..4]
+            artist_seeds = []
+            artist_names.each do |name|
+                # need to optimize later, maybe memoization
+                artist_seeds.append(RSpotify::Artist.search(name).sort_by {|artist| -artist.popularity}.first.id)
+            end
+            recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_artists: artist_seeds)
+            @playlist_songs.append(recommendation.tracks)
+        end
+
+        @playlist_songs = @playlist_songs.flatten.shuffle.uniq
 
         desc = RSpotify::User.new(@users.first.user_hash).display_name
         @users[1..@users.length].each do |user|
@@ -138,13 +162,6 @@ class RoomsController < ApplicationController
 
         # playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
         # playlist.add_tracks!(@playlist_songs)
-
-        # @recommended_tracks = []
-        # if !(@common_tracks.empty?)
-        #     @recommended_tracks = RSpotify::Recommendations.generate(seed_tracks: @common_tracks).tracks
-        #     playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!('Group Playlist')
-        #     playlist.add_tracks!(@recommended_tracks)
-        # end
     end
 
     def create
