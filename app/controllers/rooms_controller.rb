@@ -16,11 +16,13 @@ class RoomsController < ApplicationController
         @users = @room.users
         @user_room_relations = @room.user_room_relations 
 
+        @genre_rank_ceil = Float::INFINITY
         # TRR creation loop
         @user_room_relations.each do |urr|
             urr.artist_scores = Hash.new(0)
             urr.selected_playlists.drop(1).each do |playlist_id|
                 playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                @genre_rank_ceil = [@genre_rank_ceil,playlist.tracks.length].min
                 playlist.tracks.each do |track|
 
                     # artist and genre score updates
@@ -66,8 +68,9 @@ class RoomsController < ApplicationController
             @common_tracks.append(trr.track.identifier)
         end
 
-        @playlist_songs.append(@common_tracks).flatten
+        @playlist_songs.append(@common_tracks).flatten.uniq
 
+        # artist ranking
         # find user with least artists to loop through in next step
         min_length = @user_room_relations.first.artist_scores.length
         min_urr = @user_room_relations.first
@@ -89,23 +92,8 @@ class RoomsController < ApplicationController
             @final_artist_scores[artist] = room_artist_scores.min
         end
         @final_artist_scores = @final_artist_scores.sort_by {|artist, score| -score}
-
-        # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
-        @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }[0..9]
-        @top_artists_songs = []
-        @top_artists.each do |artist|
-            @track_room_relations.each do |trr|
-                if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_artists_songs.include? trr.track.identifier))
-                    trr.listeners.length.times do |i|
-                        @top_artists_songs.append(trr.track.identifier)
-                    end
-                end
-            end
-        end
-        @top_artists_selection = @top_artists_songs.sample(50)
-            
-        @playlist_songs.append(@top_artists_selection).flatten
-
+        @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }
+        
         # search for possible collabs to add
         @unique_artists = []
         @user_room_relations.each do |urr|
@@ -141,50 +129,67 @@ class RoomsController < ApplicationController
                     end
                 end 
             end
-            @collabs_found = @collabs_found.uniq
         end
 
-        @playlist_songs = @playlist_songs.append(@collabs_found).flatten.uniq
+        @playlist_songs.append(@collabs_found).flatten.uniq
 
-        # genre ranking
-        # find user with least genres to loop through in next step
-        min_length = @user_room_relations.first.genre_scores.length
-        min_urr = @user_room_relations.first
-        @user_room_relations.each do |urr|
-            urr_length = urr.genre_scores.length
-            if urr_length < min_length
-                min_length = urr_length 
-                min_urr = urr
-            end
-        end
-
-        # calculate genre scores for the room with min method
-        @final_genre_scores = Hash.new(0)
-        min_urr.genre_scores.each do |genre,score|
-            room_genre_scores = []
-            @user_room_relations.each do |urr|
-                room_genre_scores.append(urr.genre_scores.fetch(genre, 0))
-            end
-            @final_genre_scores[genre] = room_genre_scores.min
-        end
-        @final_genre_scores = @final_genre_scores.sort_by {|genre, score| -score}
-
-        # create top genre songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
-        @top_genres = @final_genre_scores.select { |genre,score| score > 0 }.map { |genre,score| genre }[0..9]
-        @top_genres_songs = []
-        @top_genres.each do |genre|
+        # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
+        @top_artists_songs = []
+        @top_artists.each do |artist|
             @track_room_relations.each do |trr|
-                if (trr.track.genres.include? genre) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_genres_songs.include? trr.track.identifier))
+                if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_artists_songs.include? trr.track.identifier))
                     trr.listeners.length.times do |i|
-                        @top_genres_songs.append(trr.track.identifier)
+                        @top_artists_songs.append(trr.track.identifier)
                     end
                 end
             end
         end
-        @top_genres_selection = @top_genres_songs.sample(50)
+        @top_artists_selection = @top_artists_songs.sample(100 - @playlist_songs.length)
+            
+        @playlist_songs.append(@top_artists_selection).flatten.uniq
 
-        #@playlist_songs = @playlist_songs.append(@top_genres_selection).flatten
+        if @playlist_songs.length < 100
+            # genre ranking
+            # find user with least genres to loop through in next step
+            min_length = @user_room_relations.first.genre_scores.length
+            min_urr = @user_room_relations.first
+            @user_room_relations.each do |urr|
+                urr_length = urr.genre_scores.length
+                if urr_length < min_length
+                    min_length = urr_length 
+                    min_urr = urr
+                end
+            end
 
+            # calculate genre scores for the room with min method
+            @final_genre_scores = Hash.new(0)
+            min_urr.genre_scores.each do |genre,score|
+                room_genre_scores = []
+                @user_room_relations.each do |urr|
+                    room_genre_scores.append(urr.genre_scores.fetch(genre, 0))
+                end
+                @final_genre_scores[genre] = room_genre_scores.min
+            end
+            @final_genre_scores = @final_genre_scores.sort_by {|genre,score| -score}
+            @top_genres = @final_genre_scores.select { |genre,score| score >= (0.1*@genre_rank_ceil) }.map { |genre,score| genre }
+
+            # create top genre songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
+            @top_genres_songs = []
+            @top_genres.each do |genre|
+                @track_room_relations.each do |trr|
+                    if (trr.track.genres.include? genre) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_genres_songs.include? trr.track.identifier))
+                        trr.listeners.length.times do |i|
+                            @top_genres_songs.append(trr.track.identifier)
+                        end
+                    end
+                end
+            end
+            @top_genres_selection = @top_genres_songs.sample(100 - @playlist_songs.length)
+
+            @playlist_songs.append(@top_genres_selection).flatten.uniq
+        end
+
+        @playlist_songs = @playlist_songs[0..99]
         @playlist_songs = @playlist_songs.flatten.uniq.map { |id| RSpotify::Track.find(id) }
 
         # fill up playlist with recommendation
@@ -202,14 +207,30 @@ class RoomsController < ApplicationController
                 end
                 recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4], seed_artists: artist_seeds)
             end
-            @playlist_songs.append(recommendation.tracks)
+            @playlist_songs.append(recommendation.tracks).flatten.uniq
+        end
+        
+        # no seeds case (no common songs or artists)
+        # songs with more than one listener
+        if @playlist_songs.length < 100
+            remainder = 100 - @playlist_songs.length
+            popular_trr = @track_room_relations.select {|trr| trr.listeners.length > 1 }.sort_by {|trr| -trr.listeners.length}
+            popular_trr = popular_trr[0..(remainder-1)]
+            @playlist_songs.append(popular_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) }).flatten.uniq
         end
 
-        # no seeds case (no common songs or artists)
-        # TO-DO
+        # still need more
+        if @playlist_songs.length < 100
+            remainder = 100 - @playlist_songs.length
+            for i in 0..(@users.length-1)
+                users = @users.to_a
+                user = users[i]
+                selected_trr = TrackRoomRelation.where(:listeners => [user.id]).sample(remainder/users.length)
+                @playlist_songs.append(selected_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) }).flatten.uniq
+            end
+        end
 
         # put shuffle after slice later
-        @playlist_songs = @playlist_songs.flatten.uniq
         @playlist_songs = @playlist_songs[0..99]
         @playlist_songs = @playlist_songs.shuffle
 
