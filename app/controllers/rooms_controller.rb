@@ -183,23 +183,30 @@ class RoomsController < ApplicationController
         end
         @top_genres_selection = @top_genres_songs.sample(50)
 
-        @playlist_songs = @playlist_songs.append(@top_genres_selection).flatten
+        #@playlist_songs = @playlist_songs.append(@top_genres_selection).flatten
 
         @playlist_songs = @playlist_songs.flatten.uniq.map { |id| RSpotify::Track.find(id) }
 
-        # fill up playlist
-        # NEXT TASK: add top genres as fallback if < 5 top artists
-        if @playlist_songs.length < 100
+        # fill up playlist with recommendation
+        if @playlist_songs.length < 100 and (@common_tracks.length > 0 or @top_artists.length > 0) 
             remainder = 100 - @playlist_songs.length
-            artist_names = @top_artists[0..4]
-            artist_seeds = []
-            artist_names.each do |name|
-                # need to optimize later, maybe memoization
-                artist_seeds.append(RSpotify::Artist.search(name).sort_by {|artist| -artist.popularity}.first.id)
+            if @common_tracks.length >= 5
+                recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4])
+            else 
+                n = 5 - @common_tracks.length
+                artist_names = @top_artists[0..(n-1)]
+                artist_seeds = []
+                artist_names.each do |name|
+                    # need to optimize later, maybe memoization
+                    artist_seeds.append(RSpotify::Artist.search(name).first.id)
+                end
+                recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4], seed_artists: artist_seeds)
             end
-            recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_artists: artist_seeds)
             @playlist_songs.append(recommendation.tracks)
         end
+
+        # no seeds case (no common songs or artists)
+        # TO-DO
 
         # put shuffle after slice later
         @playlist_songs = @playlist_songs.flatten.uniq
@@ -211,8 +218,8 @@ class RoomsController < ApplicationController
             desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
         end
 
-        playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
-        playlist.add_tracks!(@playlist_songs)
+        # playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
+        # playlist.add_tracks!(@playlist_songs)
     end
 
     def create
