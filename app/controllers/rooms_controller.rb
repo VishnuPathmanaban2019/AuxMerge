@@ -239,8 +239,8 @@ class RoomsController < ApplicationController
             desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
         end
 
-        # playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
-        # playlist.add_tracks!(@playlist_songs)
+        playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
+        playlist.add_tracks!(@playlist_songs)
     end
 
     def create
