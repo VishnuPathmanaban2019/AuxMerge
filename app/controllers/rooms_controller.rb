@@ -7,7 +7,9 @@ class RoomsController < ApplicationController
     end    
 
     def show 
+        @user_id = params[:user_id] if params[:user_id]
         @users = @room.users
+        @user_ids = @users.map { |user| user.id }
         @user_room_relations = @room.user_room_relations
     end
 

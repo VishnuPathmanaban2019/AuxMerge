@@ -1,0 +1,10 @@
+<center>
+<%= flash[:notice].try(:html_safe) %>
+<h2>Enter Room ID:</h2>
+<br />
+<%= form_for :form do |f| %>
+  <%= f.text_field :room_id %>
+
+  <%= f.submit 'Join Room' %>
+<% end %>
+</center>

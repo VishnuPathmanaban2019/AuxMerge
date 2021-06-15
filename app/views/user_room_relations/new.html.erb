@@ -5,9 +5,9 @@
   <div class="row">
     <div class="form-inputs">
       <%= f.hidden_field :user_id %>
-      <%= f.input :room_id, label_html: { class: 'active' } %>
+      <%= f.hidden_field :room_id %>
       <br />
-      <b>Public Playlists:</b>
+      <b>Select Playlists:</b>
       <br />
       <%= f.collection_check_boxes :selected_playlists, RSpotify::User.new(User.find(@user_room_relation.user_id).user_hash).playlists, :id, :name %>
     </div>
