@@ -37,11 +37,11 @@ class RoomsController < ApplicationController
                         urr.genre_scores[genre] = urr.genre_scores.fetch(genre, 0) + 1
                     end
 
-                    if Track.where(identifier: track.id).empty?
+                    if Track.where(:identifier => track.id).empty?
                         db_track = Track.create(:identifier => track.id, :name => track.name, :authors => artists, :genres => genre_list)
                         TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
                     else 
-                        db_track = Track.where(identifier: track.id).first
+                        db_track = Track.where(:identifier => track.id).first
                         trr = TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id)
                         if !(trr.empty?)
                             trr = trr.first
