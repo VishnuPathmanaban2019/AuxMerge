@@ -25,6 +25,7 @@ class RoomsController < ApplicationController
 
     def playlist
         if !(params[:user_id].nil?) and session[:current_user_id] == params[:user_id].to_i
+            @user_id = params[:user_id] if params[:user_id]
             @room = Room.find(params[:id])
             @users = @room.users
             @user_room_relations = @room.user_room_relations 
@@ -252,7 +253,7 @@ class RoomsController < ApplicationController
                 desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
             end
 
-            # playlist = RSpotify::User.new(User.find(@room.creator_id).user_hash).create_playlist!(desc)
+            # playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
             # playlist.add_tracks!(@playlist_songs)
         else 
             flash[:notice] = "You do not have access to this section."
