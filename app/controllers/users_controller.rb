@@ -6,10 +6,8 @@ class UsersController < ApplicationController
       stored_user = User.where(:email => spotify_user.email)
       if stored_user.empty?
         @user = User.create(:user_hash => spotify_user.to_hash, :email => spotify_user.email)
-        @current_user = @user.id
         redirect_to user_path(@user)
       else
-        @current_user = stored_user.first.id
         redirect_to user_path(stored_user.first)
       end
     end
@@ -36,13 +34,8 @@ class UsersController < ApplicationController
     end
   
     def show 
-      if @current_user.nil? or @current_user != @user.id
-        flash[:notice] = "Please sign in to your account."
-        redirect_to home_path
-      else
-        spotify_user = RSpotify::User.new(@user.user_hash)
-        @display_name = spotify_user.display_name
-      end
+      spotify_user = RSpotify::User.new(@user.user_hash)
+      @display_name = spotify_user.display_name
     end
 
     private
