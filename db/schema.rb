@@ -10,14 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_15_003106) do
+ActiveRecord::Schema.define(version: 2021_06_17_201500) do
 
   create_table "rooms", force: :cascade do |t|
     t.string "password"
     t.integer "creator_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "creator_playlists"
   end
 
   create_table "track_room_relations", force: :cascade do |t|

@@ -6,10 +6,6 @@
     <div class="form-inputs">
       <%= f.hidden_field :creator_id %>
       <%= f.input :password, label_html: { class: 'active' } %>
-      <br />
-      <b>Public Playlists:</b>
-      <br />
-      <%= f.collection_check_boxes :creator_playlists, RSpotify::User.new(User.find(@room.creator_id).user_hash).playlists, :id, :name %>
     </div>
   </div>
   <div class="row">

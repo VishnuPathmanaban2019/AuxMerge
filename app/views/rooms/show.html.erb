@@ -15,6 +15,6 @@
   <br />
 <% end %>
 <br />
-<%= link_to 'Generate Playlist', room_playlist_path(@room.id) %>
+<%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
 </center>
 

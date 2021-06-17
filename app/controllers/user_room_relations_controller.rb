@@ -1,8 +1,13 @@
 class UserRoomRelationsController < ApplicationController
     def new 
-        @user_room_relation = UserRoomRelation.new
-        @user_room_relation.user_id = params[:user_id] if params[:user_id]
-        @user_room_relation.room_id = params[:room_id] if params[:room_id]
+        if !(params[:user_id].nil?) and session[:current_user_id] == params[:user_id].to_i
+            @user_room_relation = UserRoomRelation.new
+            @user_room_relation.user_id = params[:user_id] if params[:user_id]
+            @user_room_relation.room_id = params[:room_id] if params[:room_id]
+        else 
+            flash[:notice] = "You do not have access to this section."
+            redirect_to home_path
+        end
     end    
 
     def create

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get '/auth/spotify/callback', to: 'users#spotify'
 
   resources :users
+  get 'users/:id/logout', to: 'users#logout', as: :logout
   get 'users/:id/join_room', to: 'users#join_room', as: :join_room
   post 'users/:id/join_room', to: 'users#join_room', as: :joined_room
   
