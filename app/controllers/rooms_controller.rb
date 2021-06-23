@@ -12,10 +12,10 @@ class RoomsController < ApplicationController
     end    
 
     def show 
-        if !(params[:user_id].nil?) and session[:current_user_id] == params[:user_id].to_i
+        @users = @room.users
+        @user_ids = @users.map { |user| user.id }
+        if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
             @user_id = params[:user_id] if params[:user_id]
-            @users = @room.users
-            @user_ids = @users.map { |user| user.id }
             @user_room_relations = @room.user_room_relations
         else 
             flash[:notice] = "You do not have access to this section."
@@ -24,10 +24,11 @@ class RoomsController < ApplicationController
     end
 
     def playlist
-        if !(params[:user_id].nil?) and session[:current_user_id] == params[:user_id].to_i
+        @room = Room.find(params[:id])
+        @users = @room.users
+        @user_ids = @users.map { |user| user.id }
+        if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
             @user_id = params[:user_id] if params[:user_id]
-            @room = Room.find(params[:id])
-            @users = @room.users
             @user_room_relations = @room.user_room_relations 
 
             @genre_rank_ceil = Float::INFINITY
@@ -240,11 +241,12 @@ class RoomsController < ApplicationController
                     users = @users.to_a
                     user = users[i]
                     selected_trr = TrackRoomRelation.where(:listeners => [user.id]).sample(remainder/users.length)
-                    @playlist_songs.append(selected_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) }).flatten.uniq
+                    @playlist_songs.append(selected_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) })
                 end
             end
 
             # put shuffle after slice later
+            @playlist_songs = @playlist_songs.flatten.uniq
             @playlist_songs = @playlist_songs[0..99]
             @playlist_songs = @playlist_songs.shuffle
 
@@ -265,6 +267,8 @@ class RoomsController < ApplicationController
         @room = Room.new(room_params)
 
         if @room.save
+            @creator = User.find(@room.creator_id)
+            @creator.update_attribute(:valid_rooms, @creator.valid_rooms.append(@room.id))
             redirect_to new_user_room_relation_path(user_id: @room.creator_id, room_id: @room.id)
         else
             # return to the 'new' form

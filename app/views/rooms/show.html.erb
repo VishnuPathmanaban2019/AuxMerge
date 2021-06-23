@@ -1,6 +1,7 @@
 <center>
 <br />
 <h1>Room ID: <%= @room.id %></h1>
+Room Password: <%= @room.password %>
 <h2>Users in this Room:</h2>
 <% @users.each do |user| %>
   <%= RSpotify::User.new(user.user_hash).display_name %><br />

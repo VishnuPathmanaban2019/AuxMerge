@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_06_17_201500) do
+ActiveRecord::Schema.define(version: 2021_06_23_044711) do
 
   create_table "rooms", force: :cascade do |t|
     t.string "password"
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(version: 2021_06_17_201500) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "email"
+    t.text "valid_rooms"
   end
 
   add_foreign_key "track_room_relations", "rooms"

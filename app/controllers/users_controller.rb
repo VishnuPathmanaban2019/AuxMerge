@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-    before_action :set_user, only: [:show]
+    before_action :set_user, only: [:show, :join_room]
 
     def spotify
       spotify_user = RSpotify::User.new(request.env['omniauth.auth'])
@@ -23,16 +23,22 @@ class UsersController < ApplicationController
       if !(params[:id].nil?) and session[:current_user_id] == params[:id].to_i
         if !(params[:form].nil?)
           room_id = params[:form][:room_id] if params[:form][:room_id]
+          password = params[:form][:password] if params[:form][:password]
           user_id = params[:id]
         end
-        if !(room_id.nil?)
+        if !(room_id.nil?) and !(password.nil?)
           begin
             room = Room.find(room_id)
-            urr = UserRoomRelation.where(:user_id => user_id, :room_id => room_id)
-            if urr.empty?
-              redirect_to new_user_room_relation_path(user_id: user_id, room_id: room_id)
+            if password != room.password
+              flash[:notice] = "Incorrect password."
             else
-              redirect_to room_path(room_id, :user_id => user_id)
+              urr = UserRoomRelation.where(:user_id => user_id, :room_id => room_id)
+              if urr.empty?
+                @user.update_attribute(:valid_rooms, @user.valid_rooms.append(room_id.to_i))
+                redirect_to new_user_room_relation_path(user_id: user_id, room_id: room_id)
+              else
+                redirect_to room_path(room_id, :user_id => user_id)
+              end
             end
           rescue Exception => exc
               flash[:notice] = "Enter a valid room ID."
