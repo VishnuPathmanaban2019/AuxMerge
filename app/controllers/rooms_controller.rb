@@ -23,6 +23,22 @@ class RoomsController < ApplicationController
         end
     end
 
+    def leave
+        @room = Room.find(params[:id])
+        @users = @room.users
+        @user_ids = @users.map { |user| user.id }
+        if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
+            @user_id = params[:user_id] if params[:user_id]
+            @user = User.find(@user_id)
+            @user.update_attribute(:valid_rooms, @user.valid_rooms - [@room.id])
+            @room.user_room_relations.where(:user_id => @user_id).first.destroy
+            redirect_to home_path
+        else 
+            flash[:notice] = "You do not have access to this section."
+            redirect_to home_path
+        end
+    end
+
     def playlist
         @room = Room.find(params[:id])
         @users = @room.users
