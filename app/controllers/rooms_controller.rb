@@ -32,7 +32,7 @@ class RoomsController < ApplicationController
             @user = User.find(@user_id)
             @user.update_attribute(:valid_rooms, @user.valid_rooms - [@room.id])
             @room.user_room_relations.where(:user_id => @user_id).first.destroy
-            redirect_to home_path
+            redirect_to user_path(@user)
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
