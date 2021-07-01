@@ -5,6 +5,17 @@ class UserRoomRelationsController < ApplicationController
             @user_room_relation = UserRoomRelation.new
             @user_room_relation.user_id = params[:user_id] if params[:user_id]
             @user_room_relation.room_id = params[:room_id] if params[:room_id]
+
+            @playlists = RSpotify::User.new(User.find(@user_room_relation.user_id).user_hash).playlists
+            @safe_playlists = []
+            @playlists.each do |playlist|
+                begin
+                    safe_playlist = RSpotify::Playlist.find_by_id(playlist.id)
+                    @safe_playlists.append(safe_playlist)
+                rescue Exception => exc
+                    
+                end
+            end
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
@@ -13,6 +24,10 @@ class UserRoomRelationsController < ApplicationController
 
     def create
         @user_room_relation = UserRoomRelation.new(user_room_relation_params)
+        @all_urr = UserRoomRelation.where(:user_id => @user_room_relation.user_id, :room_id => @user_room_relation.room_id)
+        if @all_urr.length > 0
+            @all_urr.first.destroy
+        end
 
         if @user_room_relation.save
             redirect_to room_path(@user_room_relation.room, :user_id => @user_room_relation.user_id)
