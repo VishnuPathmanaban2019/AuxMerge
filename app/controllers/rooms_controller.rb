@@ -240,7 +240,7 @@ class RoomsController < ApplicationController
                     @final_genre_scores[genre] = room_genre_scores.min
                 end
                 @final_genre_scores = @final_genre_scores.sort_by {|genre,score| -score}
-                @top_genres = @final_genre_scores.select { |genre,score| score >= 0.1*@genre_count }.map { |genre,score| genre }
+                @top_genres = @final_genre_scores.select { |genre,score| score >= 0.05*@genre_count }.map { |genre,score| genre }
 
                 # create top genre songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
                 @top_genres_songs = []
