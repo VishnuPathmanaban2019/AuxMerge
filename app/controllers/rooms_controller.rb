@@ -47,13 +47,44 @@ class RoomsController < ApplicationController
             @user_id = params[:user_id] if params[:user_id]
             @user_room_relations = @room.user_room_relations 
 
-            @genre_rank_ceil = Float::INFINITY
-            # TRR creation loop
+            # random index generation
+            @max_requests = 100
+            @sample_num = @max_requests/@users.length
+            @rand_dict = Hash.new
             @user_room_relations.each do |urr|
+                @total_length = 0
+                urr.selected_playlists.drop(1).each do |playlist_id|
+                    playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                    @total_length = @total_length + playlist.tracks.length
+                end
+
+                if @total_length < @sample_num
+                    rand_arr = [true] * @total_length
+                else
+                    rand_arr = [false] * @total_length
+
+                    already_selected = []
+                    @sample_num.times do
+                        i = rand(@total_length)
+                        while (already_selected.include? i) do
+                            i = rand(@total_length)
+                        end
+                        rand_arr[i] = true
+                        already_selected.append(i)
+                    end
+                end
+                @rand_dict[urr.user.id] = rand_arr
+            end
+            
+            # TRR creation loop
+            @genre_count = 0
+            @user_room_relations.each do |urr|
+                counter = 0
+                @rand_arr = @rand_dict[urr.user.id]
                 urr.artist_scores = Hash.new(0)
                 urr.selected_playlists.drop(1).each do |playlist_id|
                     playlist = RSpotify::Playlist.find_by_id(playlist_id)
-                    @genre_rank_ceil = [@genre_rank_ceil,playlist.tracks.length].min
+                    
                     playlist.tracks.each do |track|
 
                         # artist and genre score updates
@@ -63,9 +94,15 @@ class RoomsController < ApplicationController
                             urr.artist_scores[artist.name] = urr.artist_scores.fetch(artist.name, 0) + 1
                         end
                         artists = artists.map { |artist| artist.name }
-                        genre_list = track.artists.first.genres
-                        genre_list.each do |genre|
-                            urr.genre_scores[genre] = urr.genre_scores.fetch(genre, 0) + 1
+
+                        if @rand_arr[counter]
+                            genre_list = track.artists.first.genres
+                            genre_list.each do |genre|
+                                urr.genre_scores[genre] = urr.genre_scores.fetch(genre, 0) + 1
+                            end
+                            @genre_count = @genre_count + genre_list.length
+                        else
+                            genre_list = []
                         end
 
                         if Track.where(:identifier => track.id).empty?
@@ -84,6 +121,7 @@ class RoomsController < ApplicationController
                                 TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
                             end
                         end
+                        counter = counter + 1
                     end
                 end
             end
@@ -202,7 +240,7 @@ class RoomsController < ApplicationController
                     @final_genre_scores[genre] = room_genre_scores.min
                 end
                 @final_genre_scores = @final_genre_scores.sort_by {|genre,score| -score}
-                @top_genres = @final_genre_scores.select { |genre,score| score >= (0.1*@genre_rank_ceil) }.map { |genre,score| genre }
+                @top_genres = @final_genre_scores.select { |genre,score| score >= 0.1*@genre_count }.map { |genre,score| genre }
 
                 # create top genre songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
                 @top_genres_songs = []
