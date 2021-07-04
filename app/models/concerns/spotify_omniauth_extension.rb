@@ -1,5 +1,5 @@
 module SpotifyOmniauthExtension
-    extend ActiveSupport::Concerns
+    extend ActiveSupport::Concern
   
     def callback_url
       full_host + script_name + callback_path
