@@ -103,7 +103,7 @@ class RoomsController < ApplicationController
                         end
 
                         if Track.where(:identifier => track.id).empty?
-                            db_track = Track.create(:identifier => track.id, :name => track.name, :authors => artists, :genres => genre_list)
+                            db_track = Track.create(:uri => track.uri, :identifier => track.id, :name => track.name, :authors => artists, :genres => genre_list)
                             TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
                         else 
                             db_track = Track.where(:identifier => track.id).first
@@ -129,7 +129,7 @@ class RoomsController < ApplicationController
             # find common tracks
             @track_room_relations = @room.track_room_relations
             @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length }
-            @common_tracks = @common_trr.map { |trr| trr.track.identifier }
+            @common_tracks = @common_trr.map { |trr| trr.track.uri }
 
             @playlist_songs.append(@common_tracks).flatten.uniq
 
@@ -187,7 +187,7 @@ class RoomsController < ApplicationController
                             end 
                         end
                         if includes_all_artists
-                            @collabs_found.append(collab_tracks.first.id)
+                            @collabs_found.append(collab_tracks.first.uri)
                         end
                     end 
                 end
@@ -199,9 +199,9 @@ class RoomsController < ApplicationController
             @top_artists_songs = []
             @top_artists.each do |artist|
                 @track_room_relations.each do |trr|
-                    if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_artists_songs.include? trr.track.identifier))
+                    if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.uri)) and (!(@top_artists_songs.include? trr.track.uri))
                         trr.listeners.length.times do |i|
-                            @top_artists_songs.append(trr.track.identifier)
+                            @top_artists_songs.append(trr.track.uri)
                         end
                     end
                 end
@@ -239,9 +239,9 @@ class RoomsController < ApplicationController
                 @top_genres_songs = []
                 @top_genres.each do |genre|
                     @track_room_relations.each do |trr|
-                        if (trr.track.genres.include? genre) and (!(@playlist_songs.include? trr.track.identifier)) and (!(@top_genres_songs.include? trr.track.identifier))
+                        if (trr.track.genres.include? genre) and (!(@playlist_songs.include? trr.track.uri)) and (!(@top_genres_songs.include? trr.track.uri))
                             trr.listeners.length.times do |i|
-                                @top_genres_songs.append(trr.track.identifier)
+                                @top_genres_songs.append(trr.track.uri)
                             end
                         end
                     end
@@ -252,7 +252,7 @@ class RoomsController < ApplicationController
             end
 
             @playlist_songs = @playlist_songs[0..99]
-            @playlist_songs = @playlist_songs.flatten.uniq.map { |id| RSpotify::Track.find(id) }
+            @playlist_songs = @playlist_songs.flatten.uniq
 
             # fill up playlist with recommendation
             if @playlist_songs.length < 100 and (@common_tracks.length > 0 or @top_artists.length > 0) 
@@ -269,7 +269,7 @@ class RoomsController < ApplicationController
                     end
                     recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4], seed_artists: artist_seeds)
                 end
-                @playlist_songs.append(recommendation.tracks).flatten.uniq
+                @playlist_songs.append(recommendation.tracks.map { |track| track.uri }).flatten.uniq
             end
             
             # no seeds case (no common songs or artists)
@@ -278,7 +278,7 @@ class RoomsController < ApplicationController
                 remainder = 100 - @playlist_songs.length
                 popular_trr = @track_room_relations.select {|trr| trr.listeners.length > 1 }.sort_by {|trr| -trr.listeners.length}
                 popular_trr = popular_trr[0..(remainder-1)]
-                @playlist_songs.append(popular_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) }).flatten.uniq
+                @playlist_songs.append(popular_trr.map { |trr| trr.track.uri }).flatten.uniq
             end
 
             # still need more
@@ -288,7 +288,7 @@ class RoomsController < ApplicationController
                     users = @users.to_a
                     user = users[i]
                     selected_trr = TrackRoomRelation.where(:listeners => [user.id]).sample(remainder/users.length)
-                    @playlist_songs.append(selected_trr.map { |trr| RSpotify::Track.find(trr.track.identifier) })
+                    @playlist_songs.append(selected_trr.map { |trr| trr.track.uri })
                 end
             end
 
@@ -302,8 +302,8 @@ class RoomsController < ApplicationController
                 desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
             end
 
-            # playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
-            # playlist.add_tracks!(@playlist_songs)
+            playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
+            playlist.add_tracks!(@playlist_songs)
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
