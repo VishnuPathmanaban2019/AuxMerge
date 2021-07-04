@@ -9,7 +9,7 @@ Room Password: <%= @room.password %>
 <br />
 <h2>Selected Playlists:</h2>
 <% @user_room_relations.each do |urr| %>
-  <h3><%= RSpotify::User.new(User.find(urr.user_id).user_hash).display_name %>:</h3><br />
+  <h3><%= RSpotify::User.new(urr.user.user_hash).display_name %>:</h3><br />
   <% urr.selected_playlists.drop(1).each do |playlist| %>
     <%= RSpotify::Playlist.find_by_id(playlist).name %><br />
   <% end %>
