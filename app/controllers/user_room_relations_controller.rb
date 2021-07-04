@@ -6,7 +6,7 @@ class UserRoomRelationsController < ApplicationController
             @user_room_relation.user_id = params[:user_id] if params[:user_id]
             @user_room_relation.room_id = params[:room_id] if params[:room_id]
 
-            @playlists = RSpotify::User.new(User.find(@user_room_relation.user_id).user_hash).playlists
+            @playlists = RSpotify::User.new(@user_room_relation.user.user_hash).playlists
             @safe_playlists = []
             @playlists.each do |playlist|
                 begin
