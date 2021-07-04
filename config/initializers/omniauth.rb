@@ -6,6 +6,8 @@
 
 require 'rspotify/oauth'
 
+OmniAuth.config.allowed_request_methods = [:post, :get]
+
 Rails.application.config.to_prepare do
   OmniAuth::Strategies::Spotify.include SpotifyOmniauthExtension
 end 
