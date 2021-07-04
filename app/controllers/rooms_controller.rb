@@ -129,6 +129,7 @@ class RoomsController < ApplicationController
             # find common tracks
             @track_room_relations = @room.track_room_relations
             @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length }
+            @common_track_ids = @common_trr.map { |trr| trr.track.identifer }
             @common_tracks = @common_trr.map { |trr| trr.track.uri }
 
             @playlist_songs.append(@common_tracks).flatten.uniq
@@ -258,7 +259,7 @@ class RoomsController < ApplicationController
             if @playlist_songs.length < 100 and (@common_tracks.length > 0 or @top_artists.length > 0) 
                 remainder = 100 - @playlist_songs.length
                 if @common_tracks.length >= 5
-                    recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4])
+                    recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks_ids[0..4])
                 else 
                     n = 5 - @common_tracks.length
                     artist_names = @top_artists[0..(n-1)]
@@ -267,7 +268,7 @@ class RoomsController < ApplicationController
                         # need to optimize later, maybe memoization
                         artist_seeds.append(RSpotify::Artist.search(name).first.id)
                     end
-                    recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks[0..4], seed_artists: artist_seeds)
+                    recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_tracks_ids[0..4], seed_artists: artist_seeds)
                 end
                 @playlist_songs.append(recommendation.tracks.map { |track| track.uri }).flatten.uniq
             end
