@@ -5,8 +5,8 @@ Rails.application.routes.draw do
   get 'home', to: 'home#index', as: :home
 
   # authorization route
-  # get '/auth/spotify/callback', to: 'users#spotify'
-  post '/auth/spotify/callback', to: 'users#spotify'
+  get '/auth/spotify/callback', to: 'users#spotify', as: :get_auth
+  post '/auth/spotify/callback', to: 'users#spotify', as: :post_auth
 
   resources :users
   get 'users/:id/logout', to: 'users#logout', as: :logout
