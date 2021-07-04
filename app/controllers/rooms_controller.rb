@@ -129,7 +129,7 @@ class RoomsController < ApplicationController
             # find common tracks
             @track_room_relations = @room.track_room_relations
             @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length }
-            @common_track_ids = @common_trr.map { |trr| trr.track.identifer }
+            @common_track_ids = @common_trr.map { |trr| trr.track.identifier }
             @common_tracks = @common_trr.map { |trr| trr.track.uri }
 
             @playlist_songs.append(@common_tracks).flatten.uniq
