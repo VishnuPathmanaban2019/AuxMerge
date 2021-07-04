@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-    before_action :set_room, only: [:show]
+    before_action :set_room, only: [:show, :leave, :playlist]
 
     def new 
         if !(params[:creator_id].nil?) and session[:current_user_id] == params[:creator_id].to_i
@@ -24,7 +24,6 @@ class RoomsController < ApplicationController
     end
 
     def leave
-        @room = Room.find(params[:id])
         @users = @room.users
         @user_ids = @users.map { |user| user.id }
         if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
@@ -40,7 +39,6 @@ class RoomsController < ApplicationController
     end
 
     def playlist
-        @room = Room.find(params[:id])
         @users = @room.users
         @user_ids = @users.map { |user| user.id }
         if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
@@ -88,12 +86,11 @@ class RoomsController < ApplicationController
                     playlist.tracks.each do |track|
 
                         # artist and genre score updates
-                        artists = track.artists
+                        artists = track.artists.map { |artist| artist.name }
                         artists.each do |artist|
                             # potential speed loss with not using update_attribute
-                            urr.artist_scores[artist.name] = urr.artist_scores.fetch(artist.name, 0) + 1
+                            urr.artist_scores[artist] = urr.artist_scores.fetch(artist, 0) + 1
                         end
-                        artists = artists.map { |artist| artist.name }
 
                         if @rand_arr[counter]
                             genre_list = track.artists.first.genres
@@ -131,11 +128,8 @@ class RoomsController < ApplicationController
 
             # find common tracks
             @track_room_relations = @room.track_room_relations
-            @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length } 
-            @common_tracks = []
-            @common_trr.each do |trr|
-                @common_tracks.append(trr.track.identifier)
-            end
+            @common_trr = @track_room_relations.select { |trr| trr.score >= @users.length }
+            @common_tracks = @common_trr.map { |trr| trr.track.identifier }
 
             @playlist_songs.append(@common_tracks).flatten.uniq
 
@@ -180,7 +174,6 @@ class RoomsController < ApplicationController
             end
             head, *rest = @unique_artists 
             @collab_combos = head.product(*rest)
-            @collab_combos = @collab_combos
             
             @collabs_found = []
             if @users.length <= 3

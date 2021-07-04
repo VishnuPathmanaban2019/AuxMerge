@@ -1,7 +1,12 @@
+<center>
 <br />
 <h1>Your playlist has been downloaded!</h1>
+<%= link_to 'Back to Room', room_path(@room.id, user_id: @user_id) %>
+<br />
+<%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
 <br />
 <h2>Final Playlist:</h2>
 <% @playlist_songs.each do |track| %>
   <%= track.name %><br />
 <% end %>
+</center>
