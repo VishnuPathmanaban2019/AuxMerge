@@ -6,7 +6,6 @@ ruby '2.7.2'
 # Gems added
 gem 'rspotify'
 gem 'simple_form'
-gem 'omniauth-rails_csrf_protection', '~> 0.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.3', '>= 6.1.3.1'
