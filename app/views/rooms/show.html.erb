@@ -10,8 +10,8 @@ Room Password: <%= @room.password %>
 <h2>Selected Playlists:</h2>
 <% @user_room_relations.each do |urr| %>
   <h3><%= urr.user.name %>:</h3><br />
-  <% urr.playlist_names.each do |name| %>
-    <%= name %><br />
+  <% urr.selected_playlists.drop(1).each do |playlist| %>
+    <%= RSpotify::Playlist.find_by_id(playlist).name %><br />
   <% end %>
   <br />
 <% end %>

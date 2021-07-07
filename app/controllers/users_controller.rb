@@ -3,10 +3,10 @@ class UsersController < ApplicationController
 
     def spotify
       spotify_user = RSpotify::User.new(request.env['omniauth.auth'])
-      spotify_hash = spotify_user.to_hash
-      stored_user = User.where(:user_hash => spotify_hash)
+      email = spotify_user.email
+      stored_user = User.where(:email => email)
       if stored_user.empty?
-        @user = User.create(:user_hash => spotify_hash, :name => spotify_user.display_name)
+        @user = User.create(:user_hash => spotify_user.to_hash, :email => email, :name => spotify_user.display_name)
         session[:current_user_id] = @user.id
         redirect_to user_path(@user)
       else

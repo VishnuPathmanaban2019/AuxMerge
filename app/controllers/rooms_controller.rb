@@ -92,7 +92,7 @@ class RoomsController < ApplicationController
 
                     # artist and genre score updates
                     artists_objs = track.artists
-                    artists = artists.map { |artist| artist.id }
+                    artists = artists_objs.map { |artist| artist.id }
                     artists.each do |artist|
                         # potential speed loss with not using update_attribute
                         urr.artist_scores[artist] = urr.artist_scores.fetch(artist, 0) + 1
