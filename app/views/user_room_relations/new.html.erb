@@ -6,10 +6,11 @@
     <div class="form-inputs">
       <%= f.hidden_field :user_id %>
       <%= f.hidden_field :room_id %>
+      <%= f.hidden_field :playlist_names %>
       <br />
       <b>Select Playlists:</b>
       <br />
-      <%= f.collection_check_boxes :selected_playlists, @safe_playlists, :id, :name %>
+      <%= f.collection_check_boxes :selected_playlists, @playlists, :id, :name %>
     </div>
   </div>
   <div class="row">

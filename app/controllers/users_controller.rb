@@ -3,9 +3,10 @@ class UsersController < ApplicationController
 
     def spotify
       spotify_user = RSpotify::User.new(request.env['omniauth.auth'])
-      stored_user = User.where(:email => spotify_user.email)
+      spotify_hash = spotify_user.to_hash
+      stored_user = User.where(:user_hash => spotify_hash)
       if stored_user.empty?
-        @user = User.create(:user_hash => spotify_user.to_hash, :email => spotify_user.email)
+        @user = User.create(:user_hash => spotify_hash, :name => spotify_user.display_name)
         session[:current_user_id] = @user.id
         redirect_to user_path(@user)
       else
@@ -53,8 +54,7 @@ class UsersController < ApplicationController
   
     def show 
       if session[:current_user_id] == @user.id
-        spotify_user = RSpotify::User.new(@user.user_hash)
-        @display_name = spotify_user.display_name
+        
       else 
         flash[:notice] = "You do not have access to this section."
         redirect_to home_path

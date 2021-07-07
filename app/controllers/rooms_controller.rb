@@ -48,13 +48,20 @@ class RoomsController < ApplicationController
             # random index generation
             @max_requests = 100
             @sample_num = @max_requests/@users.length
+            @user_tracks_dict = Hash.new
             @rand_dict = Hash.new
             @user_room_relations.each do |urr|
-                @total_length = 0
+                @tracks_arr = []
                 urr.selected_playlists.drop(1).each do |playlist_id|
-                    playlist = RSpotify::Playlist.find_by_id(playlist_id)
-                    @total_length = @total_length + playlist.tracks.length
+                    begin
+                        playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                        @tracks_arr = @tracks_arr + playlist.tracks
+                    rescue Exception => exc
+                        flash[:notice] = "Some of your playlists could not be read."
+                        next
+                    end
                 end
+                @total_length = @tracks_arr.length
 
                 if @total_length < @sample_num
                     rand_arr = [true] * @total_length
@@ -72,6 +79,7 @@ class RoomsController < ApplicationController
                     end
                 end
                 @rand_dict[urr.user.id] = rand_arr
+                @user_tracks_dict[urr.user.id] = @tracks_arr
             end
             
             # TRR creation loop
@@ -80,20 +88,19 @@ class RoomsController < ApplicationController
                 counter = 0
                 @rand_arr = @rand_dict[urr.user.id]
                 urr.artist_scores = Hash.new(0)
-                urr.selected_playlists.drop(1).each do |playlist_id|
-                    playlist = RSpotify::Playlist.find_by_id(playlist_id)
-                    
-                    playlist.tracks.each do |track|
+                @user_tracks_dict[urr.user.id].each do |track|
 
-                        # artist and genre score updates
-                        artists = track.artists.map { |artist| artist.name }
-                        artists.each do |artist|
-                            # potential speed loss with not using update_attribute
-                            urr.artist_scores[artist] = urr.artist_scores.fetch(artist, 0) + 1
-                        end
+                    # artist and genre score updates
+                    artists_objs = track.artists
+                    artists = artists.map { |artist| artist.id }
+                    artists.each do |artist|
+                        # potential speed loss with not using update_attribute
+                        urr.artist_scores[artist] = urr.artist_scores.fetch(artist, 0) + 1
+                    end
 
-                        if @rand_arr[counter]
-                            genre_list = track.artists.first.genres
+                    if @rand_arr[counter]
+                        genre_list = artists_objs.first.genres
+                        if !(genre_list).nil?
                             genre_list.each do |genre|
                                 urr.genre_scores[genre] = urr.genre_scores.fetch(genre, 0) + 1
                             end
@@ -101,25 +108,28 @@ class RoomsController < ApplicationController
                         else
                             genre_list = []
                         end
-
-                        if Track.where(:identifier => track.id).empty?
-                            db_track = Track.create(:uri => track.uri, :identifier => track.id, :name => track.name, :authors => artists, :genres => genre_list)
-                            TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
-                        else 
-                            db_track = Track.where(:identifier => track.id).first
-                            trr = TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id)
-                            if !(trr.empty?)
-                                trr = trr.first
-                                if !(trr.listeners.include? urr.user_id)
-                                    trr.update_attribute(:score, trr.score + 1)
-                                    trr.update_attribute(:listeners, trr.listeners.append(urr.user_id))
-                                end
-                            else 
-                                TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
-                            end
-                        end
-                        counter = counter + 1
+                    else
+                        genre_list = []
                     end
+
+                    track_id = track.id
+                    if Track.where(:identifier => track_id).empty?
+                        db_track = Track.create(:uri => track.uri, :identifier => track_id, :authors => artists, :genres => genre_list)
+                        TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
+                    else 
+                        db_track = Track.where(:identifier => track_id).first
+                        trr = TrackRoomRelation.where(:track_id => db_track.id, :room_id => urr.room_id)
+                        if !(trr.empty?)
+                            trr = trr.first
+                            if !(trr.listeners.include? urr.user_id)
+                                trr.update_attribute(:score, trr.score + 1)
+                                trr.update_attribute(:listeners, trr.listeners.append(urr.user_id))
+                            end
+                        else 
+                            TrackRoomRelation.create(:track_id => db_track.id, :room_id => urr.room_id, :listeners => [urr.user_id], :score => 1)
+                        end
+                    end
+                    counter = counter + 1
                 end
             end
 
@@ -132,7 +142,7 @@ class RoomsController < ApplicationController
             @common_track_ids = @common_trr.map { |trr| trr.track.identifier }
             @common_tracks = @common_trr.map { |trr| trr.track.uri }
 
-            @playlist_songs.append(@common_tracks).flatten.uniq
+            @playlist_songs = @common_tracks
 
             # artist ranking
             # find user with least artists to loop through in next step
@@ -158,43 +168,43 @@ class RoomsController < ApplicationController
             @final_artist_scores = @final_artist_scores.sort_by {|artist, score| -score}
             @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }
             
-            # search for possible collabs to add
-            @unique_artists = []
-            @user_room_relations.each do |urr|
-                @user_unique_artists = []
-                user_artists = urr.artist_scores.sort_by {|artist, score| -score}.map { |artist,score| artist }
-                user_artists.each do |artist|
-                    if !(@top_artists.include? artist)
-                        @user_unique_artists.append(artist)
-                    end
-                    if @user_unique_artists.length >= 3
-                        break
-                    end 
-                end
-                @unique_artists.append(@user_unique_artists)
-            end
-            head, *rest = @unique_artists 
-            @collab_combos = head.product(*rest)
+            # # search for possible collabs to add
+            # @unique_artists = []
+            # @user_room_relations.each do |urr|
+            #     @user_unique_artists = []
+            #     user_artists = urr.artist_scores.sort_by {|artist, score| -score}.map { |artist,score| artist }
+            #     user_artists.each do |artist|
+            #         if !(@top_artists.include? artist)
+            #             @user_unique_artists.append(artist)
+            #         end
+            #         if @user_unique_artists.length >= 3
+            #             break
+            #         end 
+            #     end
+            #     @unique_artists.append(@user_unique_artists)
+            # end
+            # head, *rest = @unique_artists 
+            # @collab_combos = head.product(*rest)
             
-            @collabs_found = []
-            if @users.length <= 3
-                @collab_combos.each do |combo|
-                    collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
-                    if !(collab_tracks.empty?)
-                        includes_all_artists = true 
-                        combo.each do |artist|
-                            if !(collab_tracks.first.artists.map { |artist| artist.name }.include? artist)
-                                includes_all_artists = false
-                            end 
-                        end
-                        if includes_all_artists
-                            @collabs_found.append(collab_tracks.first.uri)
-                        end
-                    end 
-                end
-            end
+            # @collabs_found = []
+            # if @users.length <= 3
+            #     @collab_combos.each do |combo|
+            #         collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
+            #         if !(collab_tracks.empty?)
+            #             includes_all_artists = true 
+            #             combo.each do |artist|
+            #                 if !(collab_tracks.first.artists.map { |artist| artist.name }.include? artist)
+            #                     includes_all_artists = false
+            #                 end 
+            #             end
+            #             if includes_all_artists
+            #                 @collabs_found.append(collab_tracks.first.uri)
+            #             end
+            #         end 
+            #     end
+            # end
 
-            @playlist_songs.append(@collabs_found).flatten.uniq
+            # @playlist_songs.append(@collabs_found).flatten.uniq
 
             # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
             @top_artists_songs = []
@@ -209,7 +219,8 @@ class RoomsController < ApplicationController
             end
             @top_artists_selection = @top_artists_songs.sample(100 - @playlist_songs.length)
                 
-            @playlist_songs.append(@top_artists_selection).flatten.uniq
+            @playlist_songs = @playlist_songs + @top_artists_selection
+            @playlist_songs = @playlist_songs.uniq
 
             if @playlist_songs.length < 100
                 # genre ranking
@@ -233,7 +244,6 @@ class RoomsController < ApplicationController
                     end
                     @final_genre_scores[genre] = room_genre_scores.min
                 end
-                @final_genre_scores = @final_genre_scores.sort_by {|genre,score| -score}
                 @top_genres = @final_genre_scores.select { |genre,score| score >= 0.05*@genre_count }.map { |genre,score| genre }
 
                 # create top genre songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
@@ -249,11 +259,9 @@ class RoomsController < ApplicationController
                 end
                 @top_genres_selection = @top_genres_songs.sample(100 - @playlist_songs.length)
 
-                @playlist_songs.append(@top_genres_selection).flatten.uniq
+                @playlist_songs = @playlist_songs + @top_genres_selection
+                @playlist_songs = @playlist_songs.uniq
             end
-
-            @playlist_songs = @playlist_songs[0..99]
-            @playlist_songs = @playlist_songs.flatten.uniq
 
             # fill up playlist with recommendation
             if @playlist_songs.length < 100 and (@common_tracks.length > 0 or @top_artists.length > 0) 
@@ -262,15 +270,11 @@ class RoomsController < ApplicationController
                     recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_track_ids[0..4])
                 else 
                     n = 5 - @common_tracks.length
-                    artist_names = @top_artists[0..(n-1)]
-                    artist_seeds = []
-                    artist_names.each do |name|
-                        # need to optimize later, maybe memoization
-                        artist_seeds.append(RSpotify::Artist.search(name).first.id)
-                    end
+                    artist_seeds = @top_artists[0..(n-1)]
                     recommendation = RSpotify::Recommendations.generate(limit: remainder, seed_tracks: @common_track_ids[0..4], seed_artists: artist_seeds)
                 end
-                @playlist_songs.append(recommendation.tracks.map { |track| track.uri }).flatten.uniq
+                @playlist_songs = @playlist_songs + (recommendation.tracks.map { |track| track.uri })
+                @playlist_songs = @playlist_songs.uniq
             end
             
             # no seeds case (no common songs or artists)
@@ -279,7 +283,8 @@ class RoomsController < ApplicationController
                 remainder = 100 - @playlist_songs.length
                 popular_trr = @track_room_relations.select {|trr| trr.listeners.length > 1 }.sort_by {|trr| -trr.listeners.length}
                 popular_trr = popular_trr[0..(remainder-1)]
-                @playlist_songs.append(popular_trr.map { |trr| trr.track.uri }).flatten.uniq
+                @playlist_songs = @playlist_songs + (popular_trr.map { |trr| trr.track.uri })
+                @playlist_songs = @playlist_songs.uniq
             end
 
             # still need more
@@ -289,18 +294,20 @@ class RoomsController < ApplicationController
                     users = @users.to_a
                     user = users[i]
                     selected_trr = TrackRoomRelation.where(:listeners => [user.id]).sample(remainder/users.length)
-                    @playlist_songs.append(selected_trr.map { |trr| trr.track.uri })
+
+                    @playlist_songs = @playlist_songs + (selected_trr.map { |trr| trr.track.uri })
+                    @playlist_songs = @playlist_songs.uniq
                 end
             end
 
             # put shuffle after slice later
-            @playlist_songs = @playlist_songs.flatten.uniq
+            # @playlist_songs = @playlist_songs.flatten.uniq
             @playlist_songs = @playlist_songs[0..99]
             @playlist_songs = @playlist_songs.shuffle
 
-            desc = RSpotify::User.new(@users.first.user_hash).display_name
+            desc = @users.first.name
             @users[1..@users.length].each do |user|
-                desc = desc + ' + ' + RSpotify::User.new(user.user_hash).display_name
+                desc = desc + ' + ' + user.name
             end
 
             playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
