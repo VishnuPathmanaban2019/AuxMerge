@@ -53,7 +53,7 @@ class UsersController < ApplicationController
   
     def show 
       if session[:current_user_id] == @user.id
-        
+        flash[:notice] = nil
       else 
         flash[:notice] = "You do not have access to this section."
         redirect_to home_path

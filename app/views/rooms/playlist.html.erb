@@ -1,6 +1,9 @@
 <center>
 <br />
-<h1>Your playlist has been downloaded!</h1>
+<h1>Your playlist has been saved!</h1>
+<br />
+<h3>(Sort your playlists by "Recently Added")</h3>
+<br />
 <%= link_to 'Back to Room', room_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
