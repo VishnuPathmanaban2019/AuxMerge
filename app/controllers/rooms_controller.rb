@@ -22,11 +22,10 @@ class RoomsController < ApplicationController
                 @names_arr = []
                 urr.selected_playlists.drop(1).each do |playlist_id|
                     begin
-                        @playlist = RSpotify::Playlist.find_by_id(playlist_id)
-                        @names_arr = @names_arr + playlist.name
+                        playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                        @names_arr = @names_arr + [playlist.name]
                     rescue Exception => exc
                         flash[:notice] = "Some of the playlists could not be read."
-                        next
                     end
                 end
                 @user_tracks_dict[urr.user.id] = @names_arr
@@ -72,7 +71,6 @@ class RoomsController < ApplicationController
                         @tracks_arr = @tracks_arr + playlist.tracks
                     rescue Exception => exc
                         flash[:notice] = "Some of the playlists could not be read."
-                        next
                     end
                 end
                 @total_length = @tracks_arr.length
