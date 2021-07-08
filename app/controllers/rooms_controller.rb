@@ -26,6 +26,7 @@ class RoomsController < ApplicationController
                         @names_arr = @names_arr + playlist.name
                     rescue Exception => exc
                         flash[:notice] = "Some of the playlists could not be read."
+                        next
                     end
                 end
                 @user_tracks_dict[urr.user.id] = @names_arr
@@ -71,6 +72,7 @@ class RoomsController < ApplicationController
                         @tracks_arr = @tracks_arr + playlist.tracks
                     rescue Exception => exc
                         flash[:notice] = "Some of the playlists could not be read."
+                        next
                     end
                 end
                 @total_length = @tracks_arr.length
