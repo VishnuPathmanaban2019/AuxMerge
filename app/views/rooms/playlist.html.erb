@@ -1,5 +1,4 @@
 <center>
-<%= flash[:notice].try(:html_safe) %>
 <br />
 <h1>Your playlist has been downloaded!</h1>
 <%= link_to 'Back to Room', room_path(@room.id, user_id: @user_id) %>
