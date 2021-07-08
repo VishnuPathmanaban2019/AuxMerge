@@ -43,7 +43,6 @@ class UsersController < ApplicationController
             end
           rescue Exception => exc
               flash[:notice] = "Enter a valid room ID."
-              redirect_to join_room_path
           end
         end
       else 

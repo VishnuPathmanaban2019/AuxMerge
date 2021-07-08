@@ -17,6 +17,19 @@ class RoomsController < ApplicationController
         if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
             @user_id = params[:user_id] if params[:user_id]
             @user_room_relations = @room.user_room_relations
+            @user_tracks_dict = Hash.new
+            @user_room_relations.each do |urr|
+                @names_arr = []
+                urr.selected_playlists.drop(1).each do |playlist_id|
+                    begin
+                        playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                        @names_arr = @names_arr + playlist.name
+                    rescue Exception => exc
+                        flash[:notice] = "Some of the playlists could not be read."
+                    end
+                end
+                @user_tracks_dict[urr.user.id] = @names_arr
+            end
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
