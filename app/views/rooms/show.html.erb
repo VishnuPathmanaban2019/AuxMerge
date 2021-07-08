@@ -1,4 +1,5 @@
 <center>
+<%= flash[:notice].try(:html_safe) %>
 <br />
 <h1>Room ID: <%= @room.id %></h1>
 Room Password: <%= @room.password %>
@@ -11,7 +12,11 @@ Room Password: <%= @room.password %>
 <% @user_room_relations.each do |urr| %>
   <h3><%= urr.user.name %>:</h3><br />
   <% urr.selected_playlists.drop(1).each do |playlist| %>
-    <%= RSpotify::Playlist.find_by_id(playlist).name %><br />
+    <% begin %>
+      <%= RSpotify::Playlist.find_by_id(playlist).name %><br />
+    <% rescue Exception => exc %>
+      <%= flash[:notice] = "Some of the playlists could not be read." %><br />
+    <% end %>
   <% end %>
   <br />
 <% end %>

@@ -57,8 +57,7 @@ class RoomsController < ApplicationController
                         playlist = RSpotify::Playlist.find_by_id(playlist_id)
                         @tracks_arr = @tracks_arr + playlist.tracks
                     rescue Exception => exc
-                        flash[:notice] = "Some of your playlists could not be read."
-                        next
+                        flash[:notice] = "Some of the playlists could not be read."
                     end
                 end
                 @total_length = @tracks_arr.length
