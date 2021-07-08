@@ -22,7 +22,7 @@ class RoomsController < ApplicationController
                 @names_arr = []
                 urr.selected_playlists.drop(1).each do |playlist_id|
                     begin
-                        playlist = RSpotify::Playlist.find_by_id(playlist_id)
+                        @playlist = RSpotify::Playlist.find_by_id(playlist_id)
                         @names_arr = @names_arr + playlist.name
                     rescue Exception => exc
                         flash[:notice] = "Some of the playlists could not be read."
