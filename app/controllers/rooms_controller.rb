@@ -16,6 +16,9 @@ class RoomsController < ApplicationController
         @user_ids = @users.map { |user| user.id }
         if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
             @user_id = params[:user_id] if params[:user_id]
+            @user = User.where(:id => @user_id).first
+            @user.update_attribute(:downloaded, false)
+
             @user_room_relations = @room.user_room_relations
             @user_tracks_dict = Hash.new
             @user_room_relations.each do |urr|
@@ -56,6 +59,7 @@ class RoomsController < ApplicationController
         @user_ids = @users.map { |user| user.id }
         if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
             @user_id = params[:user_id] if params[:user_id]
+            @user = User.where(:id => @user_id).first
             @user_room_relations = @room.user_room_relations 
 
             # random index generation
@@ -288,6 +292,7 @@ class RoomsController < ApplicationController
 
             playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
             playlist.add_tracks!(@playlist_songs)
+            @user.update_attribute(:downloaded, true)
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
