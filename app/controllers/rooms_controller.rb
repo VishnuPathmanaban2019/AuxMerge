@@ -154,85 +154,49 @@ class RoomsController < ApplicationController
             @common_track_ids = @common_trr.map { |trr| trr.track.identifier }
             @common_tracks = @common_trr.map { |trr| trr.track.uri }
 
-            @playlist_songs = @common_tracks
+            @playlist_songs = @common_tracks[0..99]
 
-            # artist ranking
-            # find user with least artists to loop through in next step
-            min_length = @user_room_relations.first.artist_scores.length
-            min_urr = @user_room_relations.first
-            @user_room_relations.each do |urr|
-                urr_length = urr.artist_scores.length
-                if urr_length < min_length
-                    min_length = urr_length 
-                    min_urr = urr
-                end
-            end
-
-            # calculate artist scores for the room with min method
-            @final_artist_scores = Hash.new(0)
-            min_urr.artist_scores.each do |artist,score|
-                room_artist_scores = []
+            if @playlist_songs.length < 100
+                # artist ranking
+                # find user with least artists to loop through in next step
+                min_length = @user_room_relations.first.artist_scores.length
+                min_urr = @user_room_relations.first
                 @user_room_relations.each do |urr|
-                    room_artist_scores.append(urr.artist_scores.fetch(artist, 0))
+                    urr_length = urr.artist_scores.length
+                    if urr_length < min_length
+                        min_length = urr_length 
+                        min_urr = urr
+                    end
                 end
-                @final_artist_scores[artist] = room_artist_scores.min
-            end
-            @final_artist_scores = @final_artist_scores.sort_by {|artist, score| -score}
-            @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }
-            
-            # # search for possible collabs to add
-            # @unique_artists = []
-            # @user_room_relations.each do |urr|
-            #     @user_unique_artists = []
-            #     user_artists = urr.artist_scores.sort_by {|artist, score| -score}.map { |artist,score| artist }
-            #     user_artists.each do |artist|
-            #         if !(@top_artists.include? artist)
-            #             @user_unique_artists.append(artist)
-            #         end
-            #         if @user_unique_artists.length >= 3
-            #             break
-            #         end 
-            #     end
-            #     @unique_artists.append(@user_unique_artists)
-            # end
-            # head, *rest = @unique_artists 
-            # @collab_combos = head.product(*rest)
-            
-            # @collabs_found = []
-            # if @users.length <= 3
-            #     @collab_combos.each do |combo|
-            #         collab_tracks = RSpotify::Track.search(combo.join(', ')).sort_by {|track| -track.popularity}
-            #         if !(collab_tracks.empty?)
-            #             includes_all_artists = true 
-            #             combo.each do |artist|
-            #                 if !(collab_tracks.first.artists.map { |artist| artist.name }.include? artist)
-            #                     includes_all_artists = false
-            #                 end 
-            #             end
-            #             if includes_all_artists
-            #                 @collabs_found.append(collab_tracks.first.uri)
-            #             end
-            #         end 
-            #     end
-            # end
 
-            # @playlist_songs.append(@collabs_found).flatten.uniq
+                # calculate artist scores for the room with min method
+                @final_artist_scores = Hash.new(0)
+                min_urr.artist_scores.each do |artist,score|
+                    room_artist_scores = []
+                    @user_room_relations.each do |urr|
+                        room_artist_scores.append(urr.artist_scores.fetch(artist, 0))
+                    end
+                    @final_artist_scores[artist] = room_artist_scores.min
+                end
+                @final_artist_scores = @final_artist_scores.sort_by {|artist, score| -score}
+                @top_artists = @final_artist_scores.select { |artist,score| score > 0 }.map { |artist,score| artist }
 
-            # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
-            @top_artists_songs = []
-            @top_artists.each do |artist|
-                @track_room_relations.each do |trr|
-                    if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.uri)) and (!(@top_artists_songs.include? trr.track.uri))
-                        trr.listeners.length.times do |i|
-                            @top_artists_songs.append(trr.track.uri)
+                # create top artist songs array with weighted probabilities based on listeners, then randomly sample and remove duplicates
+                @top_artists_songs = []
+                @top_artists.each do |artist|
+                    @track_room_relations.each do |trr|
+                        if (trr.track.authors.include? artist) and (!(@playlist_songs.include? trr.track.uri)) and (!(@top_artists_songs.include? trr.track.uri))
+                            trr.listeners.length.times do |i|
+                                @top_artists_songs.append(trr.track.uri)
+                            end
                         end
                     end
                 end
+                @top_artists_selection = @top_artists_songs.sample(100 - @playlist_songs.length)
+                    
+                @playlist_songs = @playlist_songs + @top_artists_selection
+                @playlist_songs = @playlist_songs.uniq
             end
-            @top_artists_selection = @top_artists_songs.sample(100 - @playlist_songs.length)
-                
-            @playlist_songs = @playlist_songs + @top_artists_selection
-            @playlist_songs = @playlist_songs.uniq
 
             if @playlist_songs.length < 100
                 # genre ranking
