@@ -63,7 +63,7 @@ class RoomsController < ApplicationController
 
             @user_room_relations = @room.user_room_relations 
 
-            if @user.downloaded
+            if !(@user.downloaded)
                 # random index generation
                 @max_requests = 100
                 @sample_num = @max_requests/@users.length
