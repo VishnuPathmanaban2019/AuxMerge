@@ -8,3 +8,4 @@
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
 </center>
+<% @user.update_attribute(:downloaded, false) %>
