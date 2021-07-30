@@ -13,7 +13,7 @@
     <br />
     <br />
     <% for room_id in @user.valid_rooms %>
-        <%= link_to "[Room #{room_id}]", room_path(room_id) %>
+        <%= link_to "[Room #{room_id}]", room_path(room_id, :user_id => @user.id) %>
         <br />
     <% end %>
 <% end %>
