@@ -7,4 +7,14 @@
 <h2><%= link_to "Join a Room", join_room_path %></h2>
 <br />
 <h2><%= link_to "Logout", logout_path %></h2>
+<br />
+<% if !(@user.valid_rooms.empty?) %>
+    <h3>Your Rooms:</h3>
+    <br />
+    <br />
+    <% for room_id in @user.valid_rooms %>
+        <%= link_to "[Room #{room_id}]", room_path(room_id) %>
+        <br />
+    <% end %>
+<% end %>
 </center>
