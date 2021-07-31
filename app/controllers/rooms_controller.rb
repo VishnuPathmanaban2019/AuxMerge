@@ -308,7 +308,7 @@ class RoomsController < ApplicationController
 
         if @room.save
             @creator = User.find(@room.creator_id)
-            @creator.update_attribute(:valid_rooms, @creator.valid_rooms.append(@room.id))
+            @room.update_attribute(:valid_users, @room.valid_users.append(@room.creator_id.to_i))
             redirect_to new_user_room_relation_path(user_id: @room.creator_id, room_id: @room.id)
         else
             # return to the 'new' form
