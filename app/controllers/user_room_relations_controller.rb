@@ -5,10 +5,8 @@ class UserRoomRelationsController < ApplicationController
             @user_room_relation = UserRoomRelation.new
             @user_room_relation.user_id = params[:user_id] if params[:user_id]
             @user_room_relation.room_id = params[:room_id] if params[:room_id]
-            @user = @user_room_relation.user
             
             @playlists = RSpotify::User.new(@user_room_relation.user.user_hash).playlists
-            @user.update_attribute(:valid_rooms, @user.valid_rooms.append(@user_room_relation.room_id.to_i))
 
             flash[:notice] = nil
         else 
@@ -25,6 +23,8 @@ class UserRoomRelationsController < ApplicationController
         end
 
         if @user_room_relation.save
+            @user = @user_room_relation.user
+            @user.update_attribute(:valid_rooms, @user.valid_rooms.append(@user_room_relation.room_id.to_i))
             redirect_to room_path(@user_room_relation.room, :user_id => @user_room_relation.user_id)
         else
             # return to the 'new' form
