@@ -1,12 +1,14 @@
 class UserRoomRelationsController < ApplicationController
     def new 
         if (!(params[:user_id].nil?) and !(params[:room_id].nil?) and 
-            session[:current_user_id] == params[:user_id].to_i and User.find(params[:user_id].to_i).valid_rooms.include? params[:room_id].to_i)
+            session[:current_user_id] == params[:user_id].to_i and Room.find(params[:room_id].to_i).valid_users.include? params[:user_id].to_i)
             @user_room_relation = UserRoomRelation.new
             @user_room_relation.user_id = params[:user_id] if params[:user_id]
             @user_room_relation.room_id = params[:room_id] if params[:room_id]
+            @user = @user_room_relation.user
             
             @playlists = RSpotify::User.new(@user_room_relation.user.user_hash).playlists
+            @user.update_attribute(:valid_rooms, @user.valid_rooms.append(@user_room_relation.room_id.to_i))
 
             flash[:notice] = nil
         else 

@@ -46,6 +46,7 @@ class RoomsController < ApplicationController
             @user_id = params[:user_id] if params[:user_id]
             @user = User.find(@user_id)
             @user.update_attribute(:valid_rooms, @user.valid_rooms - [@room.id])
+            @room.update_attribute(:valid_users, @room.valid_users - [@user.id])
             @room.user_room_relations.where(:user_id => @user_id).first.destroy
             redirect_to user_path(@user)
         else 
