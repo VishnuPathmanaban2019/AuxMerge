@@ -19,5 +19,7 @@ Room Password: <%= @room.password %>
 <%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
+<br />
+<%= link_to "Home", user_path(@user_id) %>
 </center>
 
