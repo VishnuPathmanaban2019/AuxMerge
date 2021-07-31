@@ -35,7 +35,7 @@ class UsersController < ApplicationController
             else
               urr = UserRoomRelation.where(:user_id => user_id, :room_id => room_id)
               if urr.empty?
-                room.update_attribute(:valid_users, room.valid_users.append(user_id.to_i))
+                room.update_attribute(:valid_users, room.valid_users.append(1))
                 redirect_to new_user_room_relation_path(user_id: user_id, room_id: room_id)
               else
                 redirect_to room_path(room_id, :user_id => user_id)
