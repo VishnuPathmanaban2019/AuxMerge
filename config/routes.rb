@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   post 'users/:id/join_room', to: 'users#join_room', as: :joined_room
   
   resources :rooms
-  post 'rooms/:id/playlist', to: 'rooms#playlist', as: :room_playlist
+  get 'rooms/:id/playlist', to: 'rooms#playlist', as: :room_playlist
   get 'rooms/:id/leave', to: 'rooms#leave', as: :room_leave
 
   post 'user_room_relations', to: 'user_room_relations#create', as: :user_room_relations
