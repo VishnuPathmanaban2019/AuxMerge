@@ -296,6 +296,7 @@ class RoomsController < ApplicationController
                 playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
                 playlist.add_tracks!(@playlist_songs)
                 @user.update_attribute(:downloaded, true)
+                @playlist_url = 'https://open.spotify.com/playlist/' + playlist.id.to_s
             end
         else 
             flash[:notice] = "You do not have access to this section."

@@ -4,6 +4,8 @@
 <br />
 <h3>(Sort your playlists by "Recently Added")</h3>
 <br />
+<h3><%= link_to "Playlist Link", @playlist_url %></h3>
+<br />
 <%= link_to 'Back to Room', room_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
