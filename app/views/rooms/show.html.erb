@@ -1,41 +1,26 @@
 <center>
-<div id="room">
-  <br />
-  <h1>Room ID: <%= @room.id %></h1>
-  Room Password: <%= @room.password %>
-  <h2>Users in this Room:</h2>
-  <% @users.each do |user| %>
-    <%= user.name %><br />
+<br />
+<h1>Room ID: <%= @room.id %></h1>
+Room Password: <%= @room.password %>
+<h2>Users in this Room:</h2>
+<% @users.each do |user| %>
+  <%= user.name %><br />
+<% end %>
+<br />
+<h2>Selected Playlists:</h2>
+<% @user_room_relations.each do |urr| %>
+  <h3><%= urr.user.name %>:</h3><br />
+  <% @user_tracks_dict[urr.user.id].each do |name| %>
+      <%= name %><br />
   <% end %>
   <br />
-  <h2>Selected Playlists:</h2>
-  <% @user_room_relations.each do |urr| %>
-    <h3><%= urr.user.name %>:</h3><br />
-    <% @user_tracks_dict[urr.user.id].each do |name| %>
-        <%= name %><br />
-    <% end %>
-    <br />
-  <% end %>
-  <br />
-  <%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id), :id => "slow-link" %>
-  <br />
-  <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
-  <br />
-  <%= link_to "Home", user_path(@user_id) %>
-</div>
-
-<div id="loading">
-  <p>Loading...</p>
-</div>
-
-<script type="text/javascript">
-  $("#loading").hide(); 
-  $("#room").show();
-
-  $("#slow-link").click(function (event) {
-    $("#loading").show();
-    $("#room").hide();
-  });
-</script>
+<% end %>
+<br />
+<%= button_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id), data: {disable_with: 'Generating Playlist...'} %>
+<%# <%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
+<br />
+<%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
+<br />
+<%= link_to "Home", user_path(@user_id) %>
 </center>
 
