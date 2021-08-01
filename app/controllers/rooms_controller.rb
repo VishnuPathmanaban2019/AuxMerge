@@ -1,5 +1,5 @@
 class RoomsController < ApplicationController
-    before_action :set_room, only: [:show, :leave, :playlist]
+    before_action :set_room, only: [:show, :leave, :loading, :playlist]
 
     def new 
         if !(params[:creator_id].nil?) and session[:current_user_id] == params[:creator_id].to_i
@@ -49,6 +49,18 @@ class RoomsController < ApplicationController
             @room.update_attribute(:valid_users, @room.valid_users - [@user.id])
             @room.user_room_relations.where(:user_id => @user_id).first.destroy
             redirect_to user_path(@user)
+        else 
+            flash[:notice] = "You do not have access to this section."
+            redirect_to home_path
+        end
+    end
+
+    def loading
+        @users = @room.users
+        @user_ids = @users.map { |user| user.id }
+        if !(params[:user_id].nil?) and (@user_ids.include? session[:current_user_id]) and (params[:user_id].to_i == session[:current_user_id])
+            @user_id = params[:user_id] if params[:user_id]
+            redirect_to room_playlist_path(@room.id, user_id: @user_id)
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
