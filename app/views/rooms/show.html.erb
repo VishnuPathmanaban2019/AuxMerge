@@ -16,7 +16,7 @@ Room Password: <%= @room.password %>
   <br />
 <% end %>
 <br />
-<%= button_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id), method: :get, data: {disable_with: 'Generating Playlist...'} %>
+<%= button_to 'Generate Playlist', room_playlist_path(@room.id), method: :get, params: { user_id: @user_id }, data: {disable_with: 'Generating Playlist...'} %>
 <%# <%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
