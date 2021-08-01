@@ -15,7 +15,6 @@ Rails.application.routes.draw do
   
   resources :rooms
   get 'rooms/:id/playlist', to: 'rooms#playlist', as: :room_playlist
-  get 'rooms/:id/loading', to: 'rooms#loading', as: :room_loading
   get 'rooms/:id/leave', to: 'rooms#leave', as: :room_leave
 
   post 'user_room_relations', to: 'user_room_relations#create', as: :user_room_relations
