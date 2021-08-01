@@ -23,17 +23,20 @@
   <br />
   <%= link_to "Home", user_path(@user_id) %>
 </div>
+
 <div id="loading">
   <p>Loading...</p>
 </div>
-</center>
-<script type="text/javascript">
-    $("#loading").hide(); 
-    $("#room").show();
 
-    $("#slow-link").click(function (event) {
-        $("#loading").show();
-        $("#room").hide();
-    });
+<script type="text/javascript">
+  $("#loading").hide(); 
+  $("#room").show();
+
+  $("#slow-link").click(function (event) {
+    console.log("onClickEvent() called")
+    $("#loading").show();
+    $("#room").hide();
+  });
 </script>
+</center>
 
