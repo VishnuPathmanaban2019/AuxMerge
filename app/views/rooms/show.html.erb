@@ -16,10 +16,13 @@ Room Password: <%= @room.password %>
   <br />
 <% end %>
 <br />
-<%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
+<%= link_to 'Generate Playlist', "javascript:show_slow_warning()", room_playlist_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
 <br />
 <%= link_to "Home", user_path(@user_id) %>
 </center>
+<div id="slow_warning" style="display:none">
+  Loading...
+</div>
 

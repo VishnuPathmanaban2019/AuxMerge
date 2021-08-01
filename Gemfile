@@ -8,7 +8,6 @@ gem 'simple_form'
 gem 'rspotify', '>= 2.10.2'
 gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
-gem 'loading_screen', '~> 0.2.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.3', '>= 6.1.3.1'
