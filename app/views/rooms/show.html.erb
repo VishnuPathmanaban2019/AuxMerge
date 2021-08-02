@@ -1,9 +1,9 @@
 <center>
 <br />
 <h1>Room ID: <%= @room.id %></h1>
-Room/Playlist Name: <%= @room.playlist_name %>
+<b>Playlist Name:</b> <%= @room.playlist_name %>
 <br />
-Room Password: <%= @room.password %>
+<b>Room Password:</b> <%= @room.password %>
 <h2>Users in this Room:</h2>
 <% @users.each do |user| %>
   <%= user.name %><br />
