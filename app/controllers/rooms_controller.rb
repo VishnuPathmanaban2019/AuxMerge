@@ -293,7 +293,7 @@ class RoomsController < ApplicationController
                 #     desc = desc + ' + ' + user.name
                 # end
 
-                playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(@room.name)
+                playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(@room.playlist_name)
                 playlist.add_tracks!(@playlist_songs)
                 @user.update_attribute(:downloaded, true)
                 @playlist_url = 'https://open.spotify.com/playlist/' + playlist.id.to_s
