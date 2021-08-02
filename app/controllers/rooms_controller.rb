@@ -33,10 +33,6 @@ class RoomsController < ApplicationController
                 end
                 @user_tracks_dict[urr.user.id] = @names_arr
             end
-
-            if !(params[:form].nil?)
-                params[:playlist_name] = params[:form][:playlist_name] if params[:form][:playlist_name]
-            end   
         else 
             flash[:notice] = "You do not have access to this section."
             redirect_to home_path
@@ -292,16 +288,12 @@ class RoomsController < ApplicationController
                 @playlist_songs = @playlist_songs[0..99]
                 @playlist_songs = @playlist_songs.shuffle
 
-                if !(params[:playlist_name].nil?) and !(params[:playlist_name].strip.empty?)
-                    desc = params[:playlist_name]
-                else
-                    desc = @users.first.name
-                    @users[1..@users.length].each do |user|
-                        desc = desc + ' + ' + user.name
-                    end
-                end
+                # desc = @users.first.name
+                # @users[1..@users.length].each do |user|
+                #     desc = desc + ' + ' + user.name
+                # end
 
-                playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(desc)
+                playlist = RSpotify::User.new(User.find(@user_id).user_hash).create_playlist!(@room.name)
                 playlist.add_tracks!(@playlist_songs)
                 @user.update_attribute(:downloaded, true)
                 @playlist_url = 'https://open.spotify.com/playlist/' + playlist.id.to_s
