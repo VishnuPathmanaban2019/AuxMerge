@@ -323,6 +323,6 @@ class RoomsController < ApplicationController
     end
 
     def room_params
-        params.require(:room).permit(:password, :creator_id, creator_playlists:[])
+        params.require(:room).permit(:password, :playlist_name, :creator_id, valid_users:[])
     end
 end
