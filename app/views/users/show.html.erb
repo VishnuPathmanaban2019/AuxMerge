@@ -4,16 +4,16 @@
 <br />
 <h1 class= "greentext1">Hello, <%= @user.name %></h1>
 <br />
-<h1> <%= button_to 'Create a Room', new_room_path(creator_id: @user.id), :class => "button3" %></h1>
+<h1> <%= button_to 'Create a Room', new_room_path(creator_id: @user.id), method: :get, :class => "button3" %></h1>
 <br />
-<h1> <%= button_to 'Join a Room', join_room_path, :class => "button3" %></h1>
+<h1> <%= button_to 'Join a Room', join_room_path, method: :get, :class => "button3" %></h1>
 <br />
-<h1> <%= button_to 'Logout', logout_path, :class => "button3" %></h1>
+<h1> <%= button_to 'Logout', logout_path, method: :get, :class => "button3" %></h1>
 <br />
 <% if !(@user.valid_rooms.empty?) %>
     <h3 class= "greentext3">Your Rooms:</h3>
     <% for room_id in @user.valid_rooms %>
-        <%= button_to "Room #{room_id}", room_path(room_id, :user_id => @user.id), :class => "button4" %>
+        <%= button_to "Room #{room_id}", room_path(room_id, :user_id => @user.id), method: :get, :class => "button4" %>
         <br />
     <% end %>
 <% end %>
