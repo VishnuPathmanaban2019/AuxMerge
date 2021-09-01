@@ -5,7 +5,9 @@
 <h1 class= "greentext1">Hello, <%= @user.name %>.</h1>
 <br />
 <h1> <%= button_to 'Create a Room', new_room_path(creator_id: @user.id), method: :get, :class => "button2" %></h1>
+<br />
 <h1> <%= button_to 'Join a Room', join_room_path, method: :get, :class => "button2" %></h1>
+<br />
 <h1> <%= button_to 'Logout', logout_path, method: :get, :class => "button2" %></h1>
 <br />
 <% if !(@user.valid_rooms.empty?) %>
@@ -14,8 +16,5 @@
         <h1><%= button_to "Room #{room_id}", room_path(room_id, :user_id => @user.id), method: :get, :class => "button3" %></h1>
     <% end %>
 <% end %>
-<br />
-<br />
-<br />
 <br />
 </center>
