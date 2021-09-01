@@ -1,16 +1,20 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
+<body style="background-color:#212121 ;">
 <br />
-<%= flash[:notice].try(:html_safe) %>
+<div class="greentext3">
+    <%= flash[:notice].try(:html_safe) %>
+</div>
 <br />
-<h2>Enter room ID and password:</h2>
+<h2 class= "greentext2">Enter room ID and password:</h2>
 <br />
 <%= form_for :form do |f| %>
-  Room ID: <%= f.text_field :room_id %>
+  <p class= "greentext3">Room ID:<%= f.text_field :room_id, :class => 'input3' %></p>
   <br />
-  Password: <%= f.text_field :password %>
+  <p class= "greentext3">Password:<%= f.text_field :password, :class => 'input3' %></p>  
   <br />
-  <%= f.submit 'Join Room' %>
+  <%= f.submit 'Join Room', class: 'button2' %>
 <% end %>
 <br />
-<%= link_to "Home", user_path(@user) %>
+<h1><%= button_to "Home", user_path(@user), method: :get, :class => "button3" %></h1>
 </center>
