@@ -7,12 +7,10 @@
 <p class= "greentext3">(Sort your playlists by "Recently Added")</p>
 <br />
 <h1> <%= button_to "Playlist Link", @playlist_url, method: :get, :class => "button2" %> </h1>
-<br />
 <h1> <%= button_to "Back to Room", room_path(@room.id), method: :get, params: { user_id: @user_id }, :class => "button3" %> </h1>
-<br />
 <h1> <%= button_to "Leave Room", room_leave_path(@room.id), method: :get, params: { user_id: @user_id }, :class => "button3" %> </h1>
-<br />
 <h1> <%= button_to "Home", user_path(@user_id), method: :get, :class => "button3" %> </h1>
+<br />
 </center>
 <% @user.update_attribute(:downloaded, false) %>
 

@@ -17,9 +17,7 @@
 <% end %>
 <br />
 <h1><%= button_to 'Generate Playlist', room_playlist_path(@room.id), method: :get, params: { user_id: @user_id }, data: {disable_with: 'Generating Playlist...'}, :class => "button2" %></h1>
-<br />
 <h1> <%= button_to "Leave Room", room_leave_path(@room.id), method: :get, params: { user_id: @user_id }, :class => "button3" %></h1>
-<br />
 <h1> <%= button_to "Home", user_path(@user_id), method: :get, :class => "button3" %> </h1>
 <br />
 </center>
