@@ -4,7 +4,7 @@
 <br />
 <h1 class= "greentext1">Hello, <%= @user.name %>.</h1>
 <br />
-<h1> <%= button_to 'Create a Room', new_room_path(creator_id: @user.id), method: :get, :class => "button2" %></h1>
+<h1> <%= link_to 'Create a Room', new_room_path(creator_id: @user.id), :class => "text2" %></h1>
 <br />
 <h1> <%= button_to 'Join a Room', join_room_path, method: :get, :class => "button2" %></h1>
 <br />
