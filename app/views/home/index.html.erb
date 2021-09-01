@@ -1,11 +1,17 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
+<body style="background-color:#212121 ;">
 <br />
-<%= flash[:notice].try(:html_safe) %>
+<div class="greentext3">
+    <%= flash[:notice].try(:html_safe) %>
+</div>
 <br />
-<h1>AuxMerge</h1>
+<h1 class= "greentext1"> AuxMerge </h1>
 <br />
-<b>Satisfy everyone's music tastes with one playlist!</b>
+<h1 class= "greentext3"> Satisfy everyone's music tastes with one playlist!</h1>
 <br />
 <br />
-<h2><%= link_to 'Sign in with Spotify', '/auth/spotify', method: :post %></h2>
+<br />
+<h1> <%= button_to 'Log into Spotify', '/auth/spotify', method: :post, :class => "button3" %></h1>
+<br />
 </center>
