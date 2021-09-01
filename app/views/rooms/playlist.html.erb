@@ -1,15 +1,18 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
+<body style="background-color:#212121 ;">
 <br />
-<h1>Your playlist "<%= @room.playlist_name %>" has been saved!</h1>
+<p class= "greentext1">Your playlist "<%= @room.playlist_name %>" has been saved!</p>
 <br />
-<h3>(Sort your playlists by "Recently Added")</h3>
+<p class= "greentext3">(Sort your playlists by "Recently Added")</p>
 <br />
-<h3><%= link_to "Playlist Link", @playlist_url %></h3>
+<p class= "button2"> <%= button_to "Playlist Link", @playlist_url %></p>
 <br />
-<%= link_to 'Back to Room', room_path(@room.id, user_id: @user_id) %>
+<p class= "button3"> <%= button_to 'Back to Room', room_path(@room.id), params: { user_id: @user_id } %> </p>
 <br />
-<%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
+<p class= "button3"> <%= button_to 'Leave Room', room_leave_path(@room.id), params: { user_id: @user_id } %> </p>
 <br />
-<%= link_to "Home", user_path(@user_id) %>
+<p class= "button3"> <%= button_to "Home", user_path(@user_id) %> </p>
 </center>
 <% @user.update_attribute(:downloaded, false) %>
+

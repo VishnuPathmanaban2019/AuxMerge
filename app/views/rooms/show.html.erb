@@ -5,12 +5,8 @@
 <h1 class= "greentext1">Group Name: <%= @room.playlist_name %></h1>
 <br />
 <b class= "greentext3">Room Password: <%= @room.password %></b > 
-<b class= "greentext3">Room ID: <%= @room.id %></b> 
-<h2 class= "greentext2">Users in this Room:</h2>
-<% @users.each do |user| %>
-  <b class= "greentext3"><%= user.name %></b><br />
-<% end %>
 <br />
+<b class= "greentext3">Room ID: <%= @room.id %></b> 
 <h2 class= "greentext2">Selected Playlists:</h2>
 <% @user_room_relations.each do |urr| %>
   <b class= "greentext3bold"><%= urr.user.name %>:</b><br />
