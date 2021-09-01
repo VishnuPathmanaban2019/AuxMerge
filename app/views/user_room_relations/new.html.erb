@@ -9,7 +9,11 @@
       <br />
       <b>Select Playlists:</b>
       <br />
-      <%= f.collection_check_boxes :selected_playlists, @playlists, :id, :name do |b| b.check_box + b.label(:class => "greentext3")  %>
+      <%= f.collection_check_boxes(:selected_playlists, @playlists, :id, :name) do |b| %>
+        <%= b.label class:"greentext3" do %>
+          <%= b.check_box + b.text %>
+        <% end %>
+      <% end %>
     </div>
   </div>
   <div class="row">
