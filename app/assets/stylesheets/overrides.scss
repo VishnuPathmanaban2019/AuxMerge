@@ -46,8 +46,22 @@ font-size: 2vw;
 .greentext3bold{
 color:#01d95a;
 font-family:Gotham;
-font-size: 2vw;
+font-size: 6vw;
 font-weight: bold;
+}
+
+.label1 {
+color: #01d95a;
+padding: 1%;
+font-size:6vw;
+border-radius: 20px;
+}
+
+.label2 {
+color: #01d95a;
+padding: 1%;
+font-size: 4vw;
+border-radius: 20px;
 }
 
 .label3 {
@@ -57,17 +71,17 @@ font-size: 2vw;
 border-radius: 20px;
 }
 
-.input {
-padding: 6px 20px;
-font-size: 40px;
+.input1 {
+padding: 1%;
+font-size: 6vw;
 border-radius: 20px;
 color:#01d95a;
 background-color: #212121;
 }
 
 .input2 {
-padding: 6px 20px;
-font-size: 30px;
+padding: 1%;
+font-size: 4vw;
 border-radius: 20px;
 color:#01d95a;
 background-color: #212121;
