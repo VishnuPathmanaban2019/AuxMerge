@@ -1,4 +1,6 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
+<body style="background-color:#212121 ;">
 <br />
 <%= simple_form_for(@user_room_relation) do |f| %>
   <%= f.error_notification %>
@@ -7,11 +9,12 @@
       <%= f.hidden_field :user_id %>
       <%= f.hidden_field :room_id %>
       <br />
-      <b>Select Playlists:</b>
+      <b class= "greentext2">Select Playlists:</b>
       <br />
       <%= f.collection_check_boxes(:selected_playlists, @playlists, :id, :name) do |b| %>
         <%= b.label class:"greentext3" do %>
           <%= b.check_box + b.text %>
+          <br />
         <% end %>
       <% end %>
     </div>
@@ -19,7 +22,7 @@
   <div class="row">
     <div class="form-actions col s8">
       <br />
-      <%= f.button :submit , 'Join Room'%>
+      <%= f.button :submit , 'Join Room', :class => "button2"%>
     </div>
   </div>
 <% end %>
