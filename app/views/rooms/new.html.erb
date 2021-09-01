@@ -1,24 +1,24 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
-<body style="background-color:#212121 ;">
 <br />
 <%= simple_form_for(@room) do |f| %>
   <%= f.error_notification %>
   <div class="row">
     <div class="form-inputs">
       <%= f.hidden_field :creator_id %>
-      <%= f.input :playlist_name, label: 'Group Name: ', label_html: { class: 'label3' },  input_html: { class: 'input3' } %>
-      <%= f.input :password, label: 'Password: ', label_html: { class: 'label3' }, input_html: { class: 'input3' } %>
+      <%= f.input :playlist_name, label: 'Group Name: ', label_html: { class: 'active' } %>
+      <%= f.input :password, label: 'Password: ', label_html: { class: 'active' } %>
     </div>
   </div>
   <div class="row">
     <div class="form-actions col s8">
       <br />
-      <%= f.button :submit, 'Create Room', :class => "button2" %>
+      <%= f.button :submit, 'Create Room' %>
     </div>
   </div>
 <% end %>
 <br />
-<h1><%= button_to "Home", user_path(@room.creator_id), method: :get, :class => "button3" %></h1>
+<%= link_to "Home", user_path(@room.creator_id) %>
 </center>
+
+
 
