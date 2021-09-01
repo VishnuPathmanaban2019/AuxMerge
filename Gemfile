@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.7.2'
 
 # Gems added
-gem 'simple_form'
+gem 'simple_form', :git => 'git://github.com/plataformatec/simple_form.git'
 gem 'rspotify', '>= 2.10.2'
 gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
