@@ -1,19 +1,15 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
-<body style="background-color:#212121 ;">
 <br />
-<h1 class= "greentext1">Group Name:<%= @room.playlist_name %></h1>
+<h1>Room ID: <%= @room.id %></h1>
+<b>Room Password: </b> <%= @room.password %>
 <br />
-<b class= "greentext3">Room ID:<%= @room.id %> </b> 
-<b class= "greentext3">Room Password:<%= @room.password %> </b > 
-<br />
-<h2 class= "greentext2">Users in this Room:</h2>
+<b>Group Name: </b> <%= @room.playlist_name %>
+<h2>Users in this Room:</h2>
 <% @users.each do |user| %>
-<b class= "greentext3"> <%= user.name %></b>
-<br />
+  <%= user.name %><br />
 <% end %>
 <br />
-<h2 class= "greentext2">Selected Playlists:</h2>
+<h2>Selected Playlists:</h2>
 <% @user_room_relations.each do |urr| %>
   <h3><%= urr.user.name %>:</h3><br />
   <% @user_tracks_dict[urr.user.id].each do |name| %>
@@ -22,11 +18,11 @@
   <br />
 <% end %>
 <br />
-<h1><%= button_to "Generate Playlist", room_playlist_path(@room.id), method: :get, params: { user_id: @user_id }, data: {disable_with: 'Generating Playlist...'}, :class => "button5" %></h1>
+<%= button_to 'Generate Playlist', room_playlist_path(@room.id), method: :get, params: { user_id: @user_id }, data: {disable_with: 'Generating Playlist...'} %>
+<%# <%= link_to 'Generate Playlist', room_playlist_path(@room.id, user_id: @user_id) %>
 <br />
-<h1><%= button_to "Leave Room", room_leave_path(@room.id, user_id: @user_id), method: :get, :class => "button6" %></h1>
+<%= link_to 'Leave Room', room_leave_path(@room.id, user_id: @user_id) %>
 <br />
-<h1><%= button_to "Home", user_path(@user_id), method: :get, :class => "button6" %> </h1>
+<%= link_to "Home", user_path(@user_id) %>
 </center>
-
 

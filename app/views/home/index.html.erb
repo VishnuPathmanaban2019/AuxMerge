@@ -1,16 +1,11 @@
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <center>
-<body style="background-color:#212121 ;">
 <br />
 <%= flash[:notice].try(:html_safe) %>
 <br />
-<h1 style="color:#01d95a; font-size:400%; font-family:Gotham;">AuxMerge</h1>
+<h1>AuxMerge</h1>
 <br />
-<b style="color:white; font-size:210%; font-weight: lighter; font-family:Gotham;">Satisfy everyone's music tastes with one playlist!</b>
+<b>Satisfy everyone's music tastes with one playlist!</b>
 <br />
 <br />
-<br />
-<h1> <%= button_to 'Log into Spotify', '/auth/spotify', method: :post, :class => "button1" %></h1>
-<%# <br /> %>
-<%# <h1> <%= button_to 'About Us', '/auth/spotify', method: :post, :class => "button2" %>
+<h2><%= link_to 'Sign in with Spotify', '/auth/spotify', method: :post %></h2>
 </center>
