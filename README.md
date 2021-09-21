@@ -1,3 +1,3 @@
-https://auxmerge.herokuapp.com/
+auxmerge.com
 
 (README coming soon)
