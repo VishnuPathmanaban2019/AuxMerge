@@ -1,3 +1,1 @@
-www.auxmerge.com
-
-(README coming soon)
+www.auxmerge.com (temporarily down)
